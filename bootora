@@ -1,0 +1,369 @@
+#!/bin/bash
+#
+# Bootora - Fedora Post-Install System
+# Main execution script
+#
+
+set -e
+
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source utilities
+source "$SCRIPT_DIR/lib/utils.sh"
+
+# Constants
+readonly LOCKFILE="$BOOTORA_CACHE/bootora.lock"
+readonly STATE_FILE="$BOOTORA_CACHE/state.json"
+
+# Available modules
+declare -A MODULES=(
+    ["system"]="System Update & Configuration"
+    ["packages"]="Base Package Installation"
+    ["multimedia"]="Multimedia Packages & Codecs"
+    ["development"]="Development Tools & Languages"
+    ["flatpak"]="Flatpak Applications"
+    ["configuration"]="System Configuration & Tweaks"
+)
+
+# Module execution order
+readonly MODULE_ORDER=("system" "packages" "multimedia" "development" "flatpak" "configuration")
+
+# Show help
+show_help() {
+    cat << EOF
+Bootora - Fedora Post-Install System v${BOOTORA_VERSION}
+
+USAGE:
+    bootora [COMMAND] [OPTIONS]
+
+COMMANDS:
+    install             Run full installation
+    update              Update installed packages and tools
+    module <name>       Run specific module
+    list                List available modules
+    status              Show installation status
+    clean               Clean cache and temporary files
+    self-update         Update Bootora itself
+    help, -h            Show this help message
+    version, -v         Show version information
+
+MODULES:
+EOF
+
+    for module in "${MODULE_ORDER[@]}"; do
+        printf "    %-15s %s\n" "$module" "${MODULES[$module]}"
+    done
+
+    cat << EOF
+
+EXAMPLES:
+    bootora install              # Full installation
+    bootora module development   # Install only development tools
+    bootora update               # Update all installed components
+    bootora status               # Check current status
+
+For more information, visit: https://github.com/lucasbt/bootora
+EOF
+}
+
+# Show version
+show_version() {
+    echo "Bootora v${BOOTORA_VERSION}"
+    echo "Fedora Post-Install System"
+    echo "System: $(get_system_info)"
+}
+
+# Create lock file
+create_lock() {
+    if [ -f "$LOCKFILE" ]; then
+        local pid=$(cat "$LOCKFILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            log_error "Another instance of Bootora is already running (PID: $pid)"
+            exit 1
+        else
+            log_warning "Removing stale lock file"
+            rm -f "$LOCKFILE"
+        fi
+    fi
+
+    echo $$ > "$LOCKFILE"
+}
+
+# Remove lock file
+remove_lock() {
+    rm -f "$LOCKFILE"
+}
+
+# Initialize state file
+init_state() {
+    if [ ! -f "$STATE_FILE" ]; then
+        cat > "$STATE_FILE" << EOF
+{
+    "version": "${BOOTORA_VERSION}",
+    "install_date": "$(date -Iseconds)",
+    "last_update": "",
+    "modules": {
+        "system": false,
+        "packages": false,
+        "multimedia": false,
+        "development": false,
+        "flatpak": false,
+        "configuration": false
+    }
+}
+EOF
+    fi
+}
+
+# Update state
+update_state() {
+    local module="$1"
+    local status="$2"
+
+    # Simple JSON update (requires jq in production)
+    # For now, we'll use a simpler approach
+    local temp_file=$(mktemp)
+    sed "s/\"$module\": [^,]*/\"$module\": $status/" "$STATE_FILE" > "$temp_file"
+    mv "$temp_file" "$STATE_FILE"
+
+    # Update last_update timestamp
+    local current_date=$(date -Iseconds)
+    sed -i "s/\"last_update\": \"[^\"]*\"/\"last_update\": \"$current_date\"/" "$STATE_FILE"
+}
+
+# Execute module
+execute_module() {
+    local module="$1"
+    local script_path="$SCRIPT_DIR/modules/${module}.sh"
+
+    if [ ! -f "$script_path" ]; then
+        log_error "Module '$module' not found"
+        return 1
+    fi
+
+    log_header "Executing Module: ${MODULES[$module]}"
+
+    # Source the module and execute it
+    if source "$script_path" && execute_${module}_module; then
+        log_success "Module '$module' completed successfully"
+        update_state "$module" "true"
+        return 0
+    else
+        log_failed "Module '$module' failed"
+        update_state "$module" "false"
+        return 1
+    fi
+}
+
+# List modules
+list_modules() {
+    log_header "Available Modules"
+
+    for module in "${MODULE_ORDER[@]}"; do
+        local status="Not installed"
+        if [ -f "$STATE_FILE" ]; then
+            if grep -q "\"$module\": true" "$STATE_FILE"; then
+                status="${GREEN}Installed${NC}"
+            elif grep -q "\"$module\": false" "$STATE_FILE"; then
+                status="${RED}Failed/Not installed${NC}"
+            fi
+        fi
+
+        printf "  %-15s %-30s %s\n" "$module" "${MODULES[$module]}" "$status"
+    done
+}
+
+# Show status
+show_status() {
+    log_header "Bootora Status"
+
+    if [ ! -f "$STATE_FILE" ]; then
+        log_warning "No installation found"
+        return 1
+    fi
+
+    echo "System: $(get_system_info)"
+    echo "Bootora Version: $BOOTORA_VERSION"
+
+    local install_date=$(grep -o '"install_date": "[^"]*"' "$STATE_FILE" | cut -d'"' -f4)
+    local last_update=$(grep -o '"last_update": "[^"]*"' "$STATE_FILE" | cut -d'"' -f4)
+
+    echo "Install Date: $install_date"
+    if [ -n "$last_update" ] && [ "$last_update" != "" ]; then
+        echo "Last Update: $last_update"
+    fi
+
+    echo
+    list_modules
+}
+
+# Full installation
+full_install() {
+    log_header "Starting Full Bootora Installation"
+
+    local failed_modules=()
+    local total_modules=${#MODULE_ORDER[@]}
+    local current=0
+
+    for module in "${MODULE_ORDER[@]}"; do
+        current=$((current + 1))
+        show_progress $current $total_modules "Installing ${MODULES[$module]}"
+        echo
+
+        if ! execute_module "$module"; then
+            failed_modules+=("$module")
+        fi
+
+        echo
+    done
+
+    # Clear progress line
+    echo
+
+    if [ ${#failed_modules[@]} -eq 0 ]; then
+        log_header "Installation Complete!"
+        log_success "All modules installed successfully"
+        log_info "Please reboot your system for all changes to take effect"
+    else
+        log_header "Installation Completed with Issues"
+        log_warning "The following modules failed:"
+        for module in "${failed_modules[@]}"; do
+            log_failed "  - $module (${MODULES[$module]})"
+        done
+        log_info "You can retry failed modules with: bootora module <name>"
+    fi
+}
+
+# Update system
+update_system() {
+    log_header "Updating Bootora Installation"
+
+    # Re-run modules that were previously installed
+    if [ ! -f "$STATE_FILE" ]; then
+        log_error "No previous installation found. Run 'bootora install' first."
+        exit 1
+    fi
+
+    local modules_to_update=()
+    for module in "${MODULE_ORDER[@]}"; do
+        if grep -q "\"$module\": true" "$STATE_FILE"; then
+            modules_to_update+=("$module")
+        fi
+    done
+
+    if [ ${#modules_to_update[@]} -eq 0 ]; then
+        log_warning "No modules were previously installed"
+        return 0
+    fi
+
+    log_info "Updating ${#modules_to_update[@]} modules..."
+
+    for module in "${modules_to_update[@]}"; do
+        execute_module "$module"
+    done
+
+    log_success "Update completed"
+}
+
+# Self-update
+self_update() {
+    log_header "Updating Bootora"
+
+    local current_dir=$(pwd)
+    cd "$SCRIPT_DIR"
+
+    if [ -d ".git" ]; then
+        log_info "Updating from Git repository..."
+        git pull origin main
+
+        # Make scripts executable
+        find . -name "*.sh" -exec chmod +x {} \;
+        chmod +x bootora
+
+        log_success "Bootora updated successfully"
+    else
+        log_warning "Not a Git repository. Please reinstall using the bootstrap script."
+    fi
+
+    cd "$current_dir"
+}
+
+# Clean cache
+clean_cache() {
+    log_header "Cleaning Bootora Cache"
+
+    if [ -d "$BOOTORA_CACHE" ]; then
+        rm -rf "$BOOTORA_CACHE"/*
+        log_success "Cache cleaned"
+    else
+        log_info "Cache directory doesn't exist"
+    fi
+}
+
+# Main execution
+main() {
+    # Initialize environment
+    init_bootora_env
+    check_environment
+    init_state
+
+    # Handle command line arguments
+    case "${1:-}" in
+        "install")
+            create_lock
+            trap remove_lock EXIT
+            full_install
+            ;;
+        "update")
+            create_lock
+            trap remove_lock EXIT
+            update_system
+            ;;
+        "module")
+            if [ -z "${2:-}" ]; then
+                log_error "Module name required. Use 'bootora list' to see available modules."
+                exit 1
+            fi
+
+            if [[ ! " ${!MODULES[@]} " =~ " $2 " ]]; then
+                log_error "Unknown module: $2"
+                exit 1
+            fi
+
+            create_lock
+            trap remove_lock EXIT
+            execute_module "$2"
+            ;;
+        "list")
+            list_modules
+            ;;
+        "status")
+            show_status
+            ;;
+        "clean")
+            clean_cache
+            ;;
+        "self-update")
+            self_update
+            ;;
+        "--help"|"-h"|"help")
+            show_help
+            ;;
+        "--version"|"-v"|"version")
+            show_version
+            ;;
+        "")
+            log_error "No command specified. Use 'bootora --help' for usage information."
+            exit 1
+            ;;
+        *)
+            log_error "Unknown command: $1"
+            log_info "Use 'bootora --help' for usage information."
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function
+main "$@"

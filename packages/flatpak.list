@@ -1,0 +1,18 @@
+# Flatpak Applications
+# Communication
+com.discordapp.Discord
+org.telegram.desktop
+org.localsend.localsend_app
+
+# Multimedia
+io.bassi.Amberol
+com.spotify.Client
+org.nickvision.tubeconverter
+
+# Productivity
+md.obsidian.Obsidian
+io.github.alainm23.planify
+org.gnome.gitlab.somas.Apostrophe
+
+# System Tools
+com.mattjakeman.ExtensionManager

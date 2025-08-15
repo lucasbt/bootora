@@ -1,0 +1,84 @@
+# Development Tools and Libraries
+# Build essentials
+gcc
+gcc-c++
+make
+cmake
+autoconf
+automake
+libtool
+pkg-config
+pkgconf
+kernel-devel
+kernel-headers
+bison
+clang
+
+# Version control
+git
+git-lfs
+git-delta
+git-subtree
+hexedit
+meld
+
+# Text editors and IDEs
+vim-enhanced
+neovim
+
+# Development libraries
+zlib-devel
+openssl-devel
+readline-devel
+sqlite-devel
+bzip2-devel
+xz-devel
+libffi-devel
+ncurses-devel
+gdbm-devel
+tk-devel
+uuid-devel
+libuuid-devel
+
+# Network development
+curl-devel
+libcurl-devel
+wget
+
+# XML/JSON processing
+libxml2-devel
+libxslt-devel
+json-c-devel
+expat-devel
+
+# Image processing
+libjpeg-turbo-devel
+libpng-devel
+libtiff-devel
+freetype-devel
+fontconfig-devel
+
+# Performance tools
+perf
+htop
+iotop
+nethogs
+
+# Python development
+python3-devel
+python3-pip
+python3-virtualenv
+python3-wheel
+python3-setuptools
+
+# Other languages
+ruby
+ruby-devel
+perl
+perl-devel
+lua
+lua-devel
+
+bzip2-devel
+zlib-devel
+libyaml-devel
