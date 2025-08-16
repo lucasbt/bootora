@@ -1,212 +1,222 @@
-# Bootora - Fedora Post-Install System
+<div align="center">
+   <img align="center" width="256" height="256" src="assets/bootora.png" />
+	<h1 align="center"><b>Bootora</b></h1>
+	<p align="center">
+		Opinionated Fedora Workstation Setup
+    <br />
+  </p>
+</div>
 
-Um sistema completo e modular para automatizar a instalação e configuração pós-instalação do Fedora Linux. O Bootora configura seu sistema com todas as ferramentas essenciais para desenvolvimento, multimídia e produtividade.
+<br/>
 
-## 🚀 Instalação Rápida
+A complete, modular system for automating the installation and post-installation configuration of Fedora Linux. Bootora configures your system with all the essential tools for development, multimedia, and productivity.
 
-Execute este comando para instalar o Bootora:
+## 🚀 Quick Installation
+
+Run this command to install Bootora:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lucasbt/bootora/main/boot.sh | bash
 ```
 
-Após a instalação, execute:
+After installation, run:
 
 ```bash
 bootora install
 ```
 
-## O que o Bootora instala...
+## What Bootora installs...
 
-### Sistema Base
-- Atualização completa do sistema
-- Repositórios RPM Fusion e Flathub
-- Configurações otimizadas do DNF
-- Ferramentas essenciais de sistema
+### System
+- Full system update
+- Fusion and Flathub RPM repositories
+- Optimized DNF settings
+- Essential system tools
 
-### Pacotes Essenciais
-- **Editores**: vim, neovim, Visual Studio Code
-- **Ferramentas de Sistema**: htop, btop, tree, fzf, bat, ripgrep
-- **Compressão**: zip, unzip, 7zip, rar
-- **Rede**: curl, wget, nmap, telnet
-- **Fontes**: Fira Code, Roboto, Noto
+### Essential Packages
+- **Editors**: vim, neovim, Visual Studio Code
+- **System Tools**: htop, btop, tree, fzf, bat, ripgrep
+- **Compression**: zip, unzip, 7zip, rar
+- **Network**: curl, wget, nmap, telnet
+- **Fonts**: Fira Code, Roboto, Noto
 
-### Multimídia
+### Multimedia
 - **Players**: VLC, Rhythmbox
-- **Codecs**: FFmpeg, GStreamer plugins, codecs proprietários
+- **Codecs**: FFmpeg, GStreamer plugins, proprietary codecs
 
-### Desenvolvimento
-- **Linguagens**:
-  - Java (via SDKMAN) - versões 17 e 21 LTS
-  - Node.js (LTS) + npm, yarn, pnpm
-  - Python 3 + pip, poetry, pipx
-  - Go (última versão)
-  - Rust (via rustup)
-- **Ferramentas**: Docker, Podman, kubectl, Git
+### Development
+- **Languages**:
+- Java (via SDKMAN) - versions 17 and 21 LTS
+- Node.js (LTS) + npm, yarn, pnpm
+- Python 3 + pip, poetry, pipx
+- Go (latest version)
+- Rust (via rustup)
+- **Tools**: Docker, Podman, kubectl, Git
 - **Build Tools**: gcc, make, cmake, Maven, Gradle
 - **IDEs**: VS Code, IntelliJ
 
-### Aplicativos Flatpak
-- **Comunicação**: Discord, Telegram
-- **Navegadores**: Chrome, Firefox
-- **Produtividade**: LibreOffice, Obsidian
-- **Música**: Spotify
+### Flatpak Apps
+- **Communication**: Discord, Telegram
+- **Browsers**: Chrome, Firefox
+- **Productivity**: LibreOffice, Obsidian
+- **Music**: Spotify
 
-### Configurações
-- **Git**: Configuração com aliases úteis
-- **Shell**: Bash/Zsh aprimorados com Starship
-- **Aliases**: Mais de 100 aliases úteis para desenvolvimento
-- **SSH**: Configuração otimizada do cliente
+### Settings
+- **Git**: Configuration with useful aliases
+- **Shell**: Enhanced Bash/Zsh with Starship
+- **Aliases**: Over 100 useful aliases for development
+- **SSH**: Optimized client configuration
 
-## 🎯 Uso
+## 🎯 Using
 
-### Comandos Principais
+### Main Commands
 
 ```bash
-# Instalação completa
+# Complete installation
 bootora install
 
-# Atualizar componentes instalados
+# Update installed components
 bootora update
 
-# Instalar módulo específico
+# Install a specific module
 bootora module development
 
-# Ver status da instalação
+# View installation status
 bootora status
 
-# Listar módulos disponíveis
+# List available modules
 bootora list
 
-# Limpar cache
+# Clear cache
 bootora clean
 
-# Atualizar o próprio Bootora
+# Update Bootora itself
 bootora self-update
 
-# Ajuda
+# Help
 bootora --help
 ```
 
-### Módulos Disponíveis
+### Available Modules
 
-| Módulo | Descrição |
-|--------|-----------|
-| `system` | Atualização do sistema e repositórios |
-| `packages` | Pacotes base essenciais |
-| `multimedia` | Ferramentas multimídia e codecs |
-| `development` | Ferramentas de desenvolvimento |
-| `flatpak` | Aplicações Flatpak |
-| `configuration` | Configurações e tweaks do sistema |
+| Module | Description |
+|--------|-----|
+| `system` | System and repositories update |
+| `packages` | Essential base packages |
+| `multimedia` | Multimedia tools and codecs |
+| `development` | Development tools |
+| `flatpak` | Flatpak applications |
+| `configuration` | System settings and tweaks |
 
 
-## ✨ Características
+## ✨ Features
 
-### Modular e Reutilizável
-- Execute módulos individuais conforme necessário
-- Sistema de estado para tracking de instalações
-- Atualizações incrementais
+### Modular and Reusable
+- Run individual modules as needed
+- Status system for tracking installations
+- Incremental updates
 
-### Seguro e Confiável
-- Verificações de sistema antes da instalação
-- Backup automático de configurações
-- Tratamento robusto de erros
-- Sistema de lock para evitar execuções simultâneas
+### Secure and Reliable
+- System checks before installation
+- Automatic configuration backup
+- Robust error handling
+- Locking system to prevent concurrent executions
 
-### Interface Amigável
-- Output colorido e informativo
-- Barra de progresso para operações longas
-- Logs detalhados de todas as operações
-- Prompts interativos quando necessário
+### User-Friendly Interface
+- Colorful and informative output
+- Progress bar for long operations
+- Detailed logs of all operations
+- Interactive prompts when needed
 
-### Configurável
-- Listas de pacotes em arquivos separados
-- Fácil adição de novos pacotes
-- Configurações personalizáveis
+### Configurable
+- Package lists in separate files
+- Easy addition of new packages
+- Customizable configurations
 
-## 🔧 Personalização
+## 🔧 Customization
 
-### Adicionando Pacotes
+### Adding Packages
 
-Para adicionar novos pacotes, edite os arquivos em `packages/`:
+To add new packages, edit the files in `packages/`:
 
 ```bash
-# Pacotes DNF
-echo "nome-do-pacote" >> packages/packages.list
+# DNF Packages
+echo "package-name" >> packages/packages.list
 
-# Aplicações Flatpak
-echo "com.exemplo.App" >> packages/flatpak.list
+# Flatpak Applications
+echo "com.example.App" >> packages/flatpak.list
 ```
 
-### Criando Módulos Personalizados
+### Creating Custom Modules
 
-Crie um novo arquivo em `modules/` seguindo o padrão:
+Create a new file in `modules/` following the pattern:
+
 
 ```bash
 #!/bin/bash
-# Novo módulo personalizado
+# New custom module
 
-execute_meumodulo_module() {
-    log_subheader "Meu Módulo Personalizado"
+execute_mymodule_module() {
+log_subheader "My Custom Module"
 
-    # Sua lógica aqui
-    install_dnf_package "meu-pacote" "Meu Pacote"
+# Your logic here
+install_dnf_package "my-package" "My Package"
 
-    log_success "Módulo personalizado concluído"
-    return 0
+log_success "Custom module completed"
+return 0
 }
 ```
 
-## 🐛 Solução de Problemas
+## 🐛 Troubleshooting
 
-### Problemas Comuns
+### Common Problems
 
-**Erro de permissão**: Certifique-se de ter privilégios sudo
+**Permission Error**: Make sure you have sudo privileges.
 ```bash
 sudo usermod -aG wheel $USER
 ```
 
-**Repositórios não encontrados**: Execute o módulo system primeiro
+**Repositories not found**: Run the system module first.
 ```bash
 bootora module system
 ```
 
-**Flatpak não funciona**: Verifique se o Flathub está configurado
+**Flatpak not working**: Make sure Flathub is configured.
 ```bash
 flatpak remotes
 ```
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
 
-### Diretrizes
+### Guidelines
 
-- Mantenha a compatibilidade com Bash e Zsh
-- Use as funções utilitárias em `lib/utils.sh`
-- Adicione logs informativos
-- Teste em diferentes versões do Fedora
-- Documente novas funcionalidades
+- Maintain compatibility with Bash and Zsh
+- Use the utility functions in `lib/utils.sh`
+- Add informative logs
+- Test on different Fedora versions
+- Document new features
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Agradecimentos
+## 🙏 Acknowledgments
 
-- Comunidade Fedora pelo excelente sistema operacional
-- Desenvolvedores de todas as ferramentas incluídas
-- Contribuidores do projeto
+- Fedora Community for the excellent operating system
+- Developers of all included tools
+- Project contributors
 
-## 📞 Suporte
+## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/lucasbt/bootora/issues)
 - **Email**: [lucasbt@gmail.com](mailto:lucasbt@gmail.com)
 
 ---
 
-**Bootora** - Transforme seu Fedora em uma estação de trabalho completa em minutos! 🚀
+**Bootora** - Turn your Fedora into a complete workstation in minutes! 🚀
