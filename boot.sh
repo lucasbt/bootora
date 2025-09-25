@@ -97,7 +97,7 @@ install_dependencies() {
     fi
 
     print_status "Installing git and essential tools..."
-    superuser_do dnf install -y git curl wget unzip jq
+    sudo dnf install -y git curl wget unzip jq
 
     print_status "Dependencies installed successfully"
 }
