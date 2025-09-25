@@ -170,7 +170,7 @@ list_modules() {
             fi
         fi
 
-        printf "  %-15s %-30s %s\n" "$module" "${MODULES[$module]}" "$status"
+        printf "  %-15s %-30s %b\n" "$module" "${MODULES[$module]}" "$status"
     done
 }
 
