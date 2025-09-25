@@ -179,7 +179,7 @@ fi
 exec "$BOOTORA_HOME/bootora" "$@"
 EOF
 
-    chmod +x "$BIN_DIR/bootora"
+    sudo chmod +x -R "$BIN_DIR/bootora"
 
     print_status "Main executable created at $BIN_DIR/bootora"
 }

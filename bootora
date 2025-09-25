@@ -10,7 +10,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source utilities
-source "$SCRIPT_DIR/lib/utils.sh"
+source "$SCRIPT_DIR/helpers/utils.sh"
 
 # Constants
 readonly LOCKFILE="$BOOTORA_CACHE/bootora.lock"
