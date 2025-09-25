@@ -180,6 +180,7 @@ exec "$BOOTORA_HOME/bootora" "$@"
 EOF
 
     sudo chmod +x -R "$BIN_DIR/bootora"
+    sudo chmod +x -R "$INSTALL_DIR/bootora"
 
     print_status "Main executable created at $BIN_DIR/bootora"
 }
