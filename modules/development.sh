@@ -36,17 +36,9 @@ local npm_packages=(
 
 local python_packages=(
     "virtualenv"
-    "black"
-    "flake8"
-    "pytest"
     "requests"
     "flask"
-    "django"
     "fastapi"
-    "jupyter"
-    "pandas"
-    "numpy"
-    "matplotlib"
 )
 
 # Execute development module

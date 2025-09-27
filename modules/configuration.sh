@@ -26,6 +26,8 @@ execute_configuration_module() {
     # Setup useful aliases and functions
     setup_shell_enhancements
 
+    configure_environment_apps
+
     log_success "Configuration module completed successfully"
     return 0
 }
@@ -201,13 +203,50 @@ configure_zsh() {
     cat > "$zshrc" << 'EOF'
 # Zsh Configuration
 
+# disable CTRL + S and CTRL + Q
+stty -ixon
+
+# navigate words using Ctrl + arrow keys
+# >>> CRTL + right arrow | CRTL + left arrow
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+# search history using Up and Down keys
+# >>> up arrow | down arrow
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
+
+# jump to the start and end of the command line
+# >>> CTRL + A | CTRL + E
+bindkey "^A" beginning-of-line
+bindkey "^E" end-of-line
+# >>> Home | End
+bindkey "^[[H" beginning-of-line
+bindkey "^[[F" end-of-line
+
+# delete characters using the "delete" key
+bindkey "^[[3~" delete-char
+
+# fzf alias: CTRL + SPACE (gadget parameters configured in the FZF_CTRL_T_COMMAND environment variable)
+bindkey "^@" fzf-file-widget
+
 # History settings
+export HISTFILE="$HOME/.zsh_history"
 export HISTSIZE=10000
-export SAVEHIST=10000
+export SAVEHIST="$HISTSIZE"
 setopt HIST_FIND_NO_DUPS
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_SAVE_NO_DUPS
 setopt HIST_REDUCE_BLANKS
+# save each command to the history file as soon as it is executed
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+# append new history entries to the history file
+setopt APPEND_HISTORY
+# ignore commands that start with a space in the history
+setopt HIST_IGNORE_SPACE
+# enable comments "#" expressions in the prompt shell
+setopt INTERACTIVE_COMMENTS
+
 setopt AUTO_CD
 setopt CORRECT
 
@@ -220,6 +259,9 @@ source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fpath+=(~/.zsh/plugins/zsh-completions/src)
 autoload -Uz compinit && compinit
+
+# load fzf keybindings and completions
+eval "$(fzf --zsh)"
 
 # Starship prompt
 eval "$(starship init zsh)"
@@ -1287,3 +1329,60 @@ EOF
         log_info "Directory bookmarks already configured"
     fi
 }
+
+function configure_environment_apps(){
+    configure_ulauncher
+}
+
+# Configure Ulauncher
+configure_ulauncher() {
+    log_info "Configuring Ulauncher..."
+
+    # Instala o pacote caso não exista
+    install_dnf_package "ulauncher" "Ulauncher" || true
+
+    # Diretórios de configuração
+    CONFIG_DIR="$HOME/.config/ulauncher"
+    AUTOSTART_DIR="$HOME/.config/autostart"
+    APPLICATIONS_DIR="$HOME/.local/share/applications"
+
+    mkdir -p "$CONFIG_DIR"
+    mkdir -p "$AUTOSTART_DIR"
+    mkdir -p "$APPLICATIONS_DIR"
+
+    # Cria ulauncher.json
+    cat > "$CONFIG_DIR/settings.json" << 'EOF'
+{
+  "blacklisted-desktop-dirs": "/usr/share/locale:/usr/share/app-install:/usr/share/kservices5:/usr/share/fk5:/usr/share/kservicetypes5:/usr/share/applications/screensavers:/usr/share/kde4:/usr/share/mimelnk",
+  "clear-previous-query": true,
+  "disable-desktop-filters": false,
+  "grab-mouse-pointer": false,
+  "hotkey-show-app": "null",
+  "render-on-screen": "mouse-pointer-monitor",
+  "show-indicator-icon": false,
+  "show-recent-apps": "0",
+  "terminal-command": "",
+  "theme-name": "dark"
+}
+EOF
+
+    # Conteúdo do .desktop
+    DESKTOP_ENTRY='[Desktop Entry]
+Name=Ulauncher
+Comment=Application launcher for Linux
+GenericName=Launcher
+Categories=GNOME;GTK;Utility;
+TryExec=/usr/bin/ulauncher
+Exec=env GDK_BACKEND=wayland /usr/bin/ulauncher --hide-window
+Icon=ulauncher
+Terminal=false
+Type=Application
+X-GNOME-Autostart-enabled=true'
+
+    # Cria .desktop em ambos os locais
+    echo "$DESKTOP_ENTRY" > "$AUTOSTART_DIR/ulauncher.desktop"
+    echo "$DESKTOP_ENTRY" > "$APPLICATIONS_DIR/ulauncher.desktop"
+
+    log_success "Ulauncher configured (apps + autostart)"
+}
+
