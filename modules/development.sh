@@ -40,11 +40,32 @@ local python_packages=(
     "fastapi"
 )
 
-# Execute development module
+# Função genérica para executar um step com feedback em tempo real
+run_step() {
+    local index=$1
+    local total=$2
+    local desc=$3
+    local func=$4
+
+    # Atualiza barra antes de iniciar
+    show_progress "$index" "$total" "$desc"
+
+    # Executa função e exibe output em tempo real
+    if ! "$func" 2>&1 | while IFS= read -r line; do
+        printf "\n%s\n" "$line"
+    done; then
+        printf "\n❌ Error in %s\n" "$desc"
+        return 1
+    fi
+
+    # Atualiza barra mostrando conclusão do step
+    show_progress "$index" "$total" "$desc (done)"
+}
+
+# Loop principal usando run_step
 execute_development_module() {
     log_subheader "Development Tools & Languages Installation"
 
-    # Lista de funções (etapas)
     local steps=(
         install_sdkman
         install_sdkman_jdks
@@ -69,7 +90,6 @@ execute_development_module() {
         install_dbeaver
     )
 
-    # Descrições legíveis
     local descriptions=(
         "Installing SDKMAN"
         "Installing SDKMAN - JDKs"
@@ -97,24 +117,14 @@ execute_development_module() {
     local total_steps=${#steps[@]}
 
     for i in "${!steps[@]}"; do
-        local step_index=$((i + 1))
-        local step_func="${steps[$i]}"
-        local step_desc="${descriptions[$i]}"
-        show_progress "$step_index" "$total_steps" "$step_desc"
-        #$step_func
-        if ! output=$($step_func 2>&1); then
-            if [ -n "$output" ]; then
-                printf "\n❌ Error in %s:\n%s\n" "$step_desc" "$output"
-            else
-                printf "\n❌ Error in %s (no output captured)\n" "$step_desc"
-            fi
-        fi
+        run_step "$((i+1))" "$total_steps" "${descriptions[$i]}" "${steps[$i]}"
     done
 
     printf "\n"
     log_success "Development module completed successfully"
     return 0
 }
+
 
 # Install Visual Studio Code
 install_vscode() {
@@ -175,37 +185,29 @@ install_sdkman() {
 
 # Install JDKS
 install_sdkman_jdks() {
-    log_info "Installing JDKs..."
+    log_info "Installing SDKMAN JDKs..."
 
     source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-    if is_command_available "sdk"; then
-        # Install Java versions
-        log_info "Installing Java 17 (LTS)..."
-        sdk install java 17.0.10-tem || log_warning "Failed to install Java 17"
-
-        log_info "Installing Java 21 (LTS)..."
-        sdk install java 21.0.2-tem || log_warning "Failed to install Java 21"
-
-        log_info "Installing Java 24 (Latest)..."
-        sdk install java 24.0.1-tem || log_warning "Failed to install Java 24"
-
-        # Set default Java version
-        sdk default java 21.0.2-tem || log_warning "Failed to set default Java"
-
-        # Install build tools
-        log_info "Installing Maven..."
-        sdk install maven || log_warning "Failed to install Maven"
-
-        log_info "Installing Gradle..."
-        sdk install gradle || log_warning "Failed to install Gradle"
-
-        log_success "SDKMAN and Java tools installed"
-    else
-        log_failed "Failed to install jdks, SDKMAN not installed."
+    if ! is_command_available "sdk"; then
+        log_failed "SDKMAN not installed"
         return 1
     fi
+
+    local jdks=("17.0.10-tem" "21.0.2-tem" "25-tem")
+    for jdk in "${jdks[@]}"; do
+        log_info "Installing Java $jdk..."
+        if ! sdk install java "$jdk"; then
+            log_warning "Failed to install Java $jdk"
+        fi
+    done
+
+    # Set default JDK
+    sdk default java "25-tem" || log_warning "Failed to set default Java"
+
+    log_success "SDKMAN JDKs installed"
 }
+
 
 # Install JDKS
 install_sdkman_buildtools() {
