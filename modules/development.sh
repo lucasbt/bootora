@@ -236,7 +236,6 @@ add_sdkman_to_shellrc() {
 	# Configuração para lazy-load no Zsh
     local SDKMAN_LAZY_CONFIG='''
 
-<<<<<<< HEAD
 # SDKMAN! Lazy Load
 sdk() {
     unset -f sdk
@@ -245,16 +244,6 @@ sdk() {
     sdk "$@"
 }
 '''
-=======
-		# SDKMAN! Lazy Load
-		sdk() {
-			unset -f sdk
-			export SDKMAN_DIR=\"\$HOME/.sdkman\"
-			[[ -s \"\$HOME/.sdkman/bin/sdkman-init.sh\" ]] && source \"\$HOME/.sdkman/bin/sdkman-init.sh\"
-			sdk \"\$@\" # Chama o comando sdk real com os argumentos originais
-		}
-	'''
->>>>>>> parent of 5f74d74 (feat: upgrade dev functions)
 
     if [ -f "$shellrc" ]; then
 		if ! grep -qF "# SDKMAN! Lazy Load" "$shellrc"; then
