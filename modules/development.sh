@@ -25,7 +25,6 @@ local docker_packages=(
 local npm_packages=(
     "yarn"
     "pnpm"
-    "create-react-app"
     "typescript"
     "ts-node"
     "nodemon"
@@ -98,7 +97,10 @@ execute_development_module() {
         local step_func="${steps[$i]}"
         local step_desc="${descriptions[$i]}"
         show_progress "$step_index" "$total_steps" "$step_desc"
-        $step_func
+        #$step_func
+        if ! output=$($step_func 2>&1); then
+            printf "\n❌ Error in %s:\n%s\n" "$step_desc" "$output"
+        fi
     done
 
     printf "\n"
