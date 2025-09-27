@@ -25,6 +25,7 @@ local docker_packages=(
 local npm_packages=(
     "yarn"
     "pnpm"
+    "create-react-app"
     "typescript"
     "ts-node"
     "nodemon"
@@ -117,7 +118,11 @@ execute_development_module() {
     local total_steps=${#steps[@]}
 
     for i in "${!steps[@]}"; do
-        run_step "$((i+1))" "$total_steps" "${descriptions[$i]}" "${steps[$i]}"
+        local step_index=$((i + 1))
+        local step_func="${steps[$i]}"
+        local step_desc="${descriptions[$i]}"
+        show_progress "$step_index" "$total_steps" "$step_desc"
+        $step_func
     done
 
     printf "\n"
