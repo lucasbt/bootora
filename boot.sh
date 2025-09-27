@@ -141,6 +141,9 @@ setup_repository() {
     if [ -d "$INSTALL_DIR/.git" ]; then
         print_status "Updating existing repository..."
         cd "$INSTALL_DIR"
+        git config --global credential.helper 'cache --timeout=3600'
+        git fetch --all
+        git reset --hard origin/main
         git pull origin main
         cd -
     else

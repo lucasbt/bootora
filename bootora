@@ -196,6 +196,7 @@ show_status() {
 
     echo
     list_modules
+    echo
 }
 
 # Full installation
