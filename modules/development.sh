@@ -41,28 +41,6 @@ local python_packages=(
     "fastapi"
 )
 
-# Função genérica para executar um step com feedback em tempo real
-run_step() {
-    local index=$1
-    local total=$2
-    local desc=$3
-    local func=$4
-
-    # Atualiza barra antes de iniciar
-    show_progress "$index" "$total" "$desc"
-
-    # Executa função e exibe output em tempo real
-    if ! "$func" 2>&1 | while IFS= read -r line; do
-        printf "\n%s\n" "$line"
-    done; then
-        printf "\n❌ Error in %s\n" "$desc"
-        return 1
-    fi
-
-    # Atualiza barra mostrando conclusão do step
-    show_progress "$index" "$total" "$desc (done)"
-}
-
 # Loop principal usando run_step
 execute_development_module() {
     log_subheader "Development Tools & Languages Installation"
