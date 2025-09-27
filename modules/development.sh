@@ -239,7 +239,7 @@ add_sdkman_to_shellrc() {
 # SDKMAN! Lazy Load
 sdk() {
     unset -f sdk
-    export SDKMAN_DIR="$HOME/.sdkman"
+    export SDKMAN_DIR=$HOME/.sdkman
     [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
     sdk "$@"
 }
