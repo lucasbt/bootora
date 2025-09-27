@@ -83,18 +83,41 @@ log_subheader() {
 
 # Progress indicator
 show_progress() {
-    local current=$1
-    local total=$2
-    local description=$3
-    local percentage=$((current * 100 / total))
-    local filled=$((percentage / 2))
-    local empty=$((50 - filled))
+    local current=${1:-0}
+    local total=${2:-1}
+    local description=${3:-}
+    local bar_width=50
 
-    printf "\r${BLUE}[${NC}"
-    printf "%${filled}s" | tr ' ' '='
-    printf "%${empty}s" | tr ' ' '-'
-    printf "${BLUE}]${NC} ${percentage}%% - ${description}"
+    # validações / normalizações
+    if [ "$total" -le 0 ]; then total=1; fi
+    if [ "$current" -lt 0 ]; then current=0; fi
+    if [ "$current" -gt "$total" ]; then current=$total; fi
+
+    local percentage=$(( current * 100 / total ))
+    local filled=$(( (percentage * bar_width) / 100 ))
+    local empty=$(( bar_width - filled ))
+
+    # cores (fallback caso não estejam definidas)
+    : "${BLUE:=$'\e[34m'}"
+    : "${NC:=$'\e[0m'}"
+
+    # limpa a linha atual desde o cursor até o fim e reescreve tudo
+    printf "\r\033[K"         # <-- ESSA LINHA remove o "lixo"
+    printf "%b[" "$BLUE"
+    if [ "$filled" -gt 0 ]; then
+        printf "%${filled}s" | tr ' ' '='
+    fi
+    if [ "$empty" -gt 0 ]; then
+        printf "%${empty}s" | tr ' ' '-'
+    fi
+    printf "%b] %3d%% - %s" "$NC" "$percentage" "$description"
+
+    # se finalizou, pula linha
+    if [ "$current" -ge "$total" ]; then
+        printf "\n"
+    fi
 }
+
 
 # System detection
 get_system_info() {

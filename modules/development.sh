@@ -47,6 +47,8 @@ execute_development_module() {
     # Lista de funções (etapas)
     local steps=(
         install_sdkman
+        install_sdkman_jdks
+        install_sdkman_buildtools
         install_nodejs
         install_golang
         install_python_tools
@@ -70,6 +72,8 @@ execute_development_module() {
     # Descrições legíveis
     local descriptions=(
         "Installing SDKMAN"
+        "Installing SDKMAN - JDKs"
+        "Installing SDKMAN - Build Tools"
         "Installing Node.js"
         "Installing Go"
         "Installing Python Tools"
@@ -154,7 +158,18 @@ install_sdkman() {
 
         add_sdkman_to_shellrc "$HOME/.bashrc" "Bash"
 		add_sdkman_to_shellrc "$HOME/.zshrc" "Zsh"
+        log_success "SDKMAN tool installed"
+    else
+        log_failed "Failed to install SDKMAN"
+        return 1
+    fi
+}
 
+# Install JDKS
+install_sdkman_jdks() {
+    log_info "Installing JDKs..."
+
+    if is_command_available "sdk"; then
         # Install Java versions
         log_info "Installing Java 17 (LTS)..."
         sdk install java 17.0.10-tem || log_warning "Failed to install Java 17"
@@ -177,7 +192,26 @@ install_sdkman() {
 
         log_success "SDKMAN and Java tools installed"
     else
-        log_failed "Failed to install SDKMAN"
+        log_failed "Failed to install jdks, SDKMAN not installed."
+        return 1
+    fi
+}
+
+# Install JDKS
+install_sdkman_buildtools() {
+    log_info "Installing Build Tools..."
+
+    if is_command_available "sdk"; then
+        # Install build tools
+        log_info "Installing Maven..."
+        sdk install maven || log_warning "Failed to install Maven"
+
+        log_info "Installing Gradle..."
+        sdk install gradle || log_warning "Failed to install Gradle"
+
+        log_success "SDKMAN build tools installed"
+    else
+        log_failed "Failed to install build tools, SDKMAN not installed."
         return 1
     fi
 }
