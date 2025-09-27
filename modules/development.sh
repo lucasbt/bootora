@@ -157,8 +157,8 @@ install_sdkman() {
         # Source SDKMAN
         source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-        add_sdkman_to_shellrc "$HOME/.bashrc" "Bash"
-		add_sdkman_to_shellrc "$HOME/.zshrc" "Zsh"
+        #add_sdkman_to_shellrc "$HOME/.bashrc" "Bash"
+		#add_sdkman_to_shellrc "$HOME/.zshrc" "Zsh"
         log_success "SDKMAN tool installed"
     else
         log_failed "Failed to install SDKMAN"
