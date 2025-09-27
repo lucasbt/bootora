@@ -103,7 +103,11 @@ execute_development_module() {
         show_progress "$step_index" "$total_steps" "$step_desc"
         #$step_func
         if ! output=$($step_func 2>&1); then
-            printf "\n❌ Error in %s:\n%s\n" "$step_desc" "$output"
+            if [ -n "$output" ]; then
+                printf "\n❌ Error in %s:\n%s\n" "$step_desc" "$output"
+            else
+                printf "\n❌ Error in %s (no output captured)\n" "$step_desc"
+            fi
         fi
     done
 
@@ -143,6 +147,10 @@ EOF
 # Install SDKMAN
 install_sdkman() {
     log_info "Installing SDKMAN..."
+
+    if [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+    fi
 
     if is_command_available "sdk"; then
         log_info "SDKMAN already installed"
