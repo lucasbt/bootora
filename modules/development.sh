@@ -177,6 +177,8 @@ install_sdkman() {
 install_sdkman_jdks() {
     log_info "Installing JDKs..."
 
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+
     if is_command_available "sdk"; then
         # Install Java versions
         log_info "Installing Java 17 (LTS)..."
@@ -208,6 +210,8 @@ install_sdkman_jdks() {
 # Install JDKS
 install_sdkman_buildtools() {
     log_info "Installing Build Tools..."
+
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
 
     if is_command_available "sdk"; then
         # Install build tools
