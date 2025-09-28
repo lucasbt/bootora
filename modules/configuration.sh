@@ -464,12 +464,13 @@ EOF
 
 # Configure automatic updates
 configure_automatic_updates() {
+    log_info "Configuring automatic security updates..."
     if ask_yes_no "Enable automatic security updates?" "y"; then
         install_dnf_package "dnf-automatic" "DNF Automatic"
 
         # Configure dnf-automatic
         local auto_config="/etc/dnf/automatic.conf"
-        if [ -f "$auto_config" ]; then
+        if [ -n "$auto_config" ]; then
             superuser_do sed -i 's/apply_updates = no/apply_updates = yes/' "$auto_config"
             superuser_do sed -i 's/upgrade_type = default/upgrade_type = security/' "$auto_config"
 

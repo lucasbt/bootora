@@ -270,7 +270,7 @@ backup_file() {
 ensure_directory() {
     local dir="$1"
     if [ ! -d "$dir" ]; then
-        mkdir -p "$dir"
+        superuser_do mkdir -p "$dir"
         log_info "Created directory: $dir"
     fi
 }
