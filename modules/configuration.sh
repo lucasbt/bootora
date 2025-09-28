@@ -471,8 +471,17 @@ configure_automatic_updates() {
         # Configure dnf-automatic
         local auto_config="/etc/dnf/automatic.conf"
         if [ -n "$auto_config" ]; then
-            superuser_do sed -i 's/apply_updates = no/apply_updates = yes/' "$auto_config"
-            superuser_do sed -i 's/upgrade_type = default/upgrade_type = security/' "$auto_config"
+            if grep -q "apply_updates" "$auto_config"; then
+                superuser_do sed -i 's/^\s*#\?\s*apply_updates\s*=.*/apply_updates = yes/' "$auto_config"
+            else
+                echo "apply_updates = yes" | superuser_do tee -a "$auto_config" >/dev/null
+            fi
+
+            if grep -q "upgrade_type" "$auto_config"; then
+                superuser_do sed -i 's/^\s*#\?\s*upgrade_type\s*=.*/upgrade_type = security/' "$auto_config"
+            else
+                echo "upgrade_type = security" | superuser_do tee -a "$auto_config" >/dev/null
+            fi
 
             enable_service "dnf-automatic.timer" "Automatic Updates"
             start_service "dnf-automatic.timer" "Automatic Updates"
@@ -559,7 +568,7 @@ configure_folders_development_environment() {
     ensure_directory "$HOME/Documents/areas"
     ensure_directory "$HOME/.local/bin"
 
-    cp -r "$HOME/Pictures/"* "$HOME/Documents/resources/pictures/"
+    cp -r "$HOME/Pictures/"* "$HOME/Documents/resources/pictures/" 2>/dev/null || true
     rm -rf "$HOME/Pictures" && ln -s "$HOME/Documents/resources/pictures" "$HOME/Pictures"
 
     # Configure development tools
@@ -788,24 +797,24 @@ alias cwd='pwd | tr -d "\r\n" | xclip -selection clipboard'
 # Pipe my public key to my clipboard.
 alias pubkey="more ~/.ssh/id_ed25519.pub | xclip -selection clipboard | echo '=> Public key copied to pasteboard.'"
 EOF
-
-        # Source dev aliases in shell profiles
-        if [ -f "$HOME/.bashrc" ] && ! grep -q "dev_aliases" "$HOME/.bashrc"; then
-            echo "" >> "$HOME/.bashrc"
-            echo "# Load development aliases" >> "$HOME/.bashrc"
-            echo "[ -f ~/.dev_aliases ] && source ~/.dev_aliases" >> "$HOME/.bashrc"
-        fi
-
-        if [ -f "$HOME/.zshrc" ] && ! grep -q "dev_aliases" "$HOME/.zshrc"; then
-            echo "" >> "$HOME/.zshrc"
-            echo "# Load development aliases" >> "$HOME/.zshrc"
-            echo "[ -f ~/.dev_aliases ] && source ~/.dev_aliases" >> "$HOME/.zshrc"
-        fi
-
-        log_success "Development aliases configured"
     else
-        log_info "Development aliases already configured"
+        log_info "Development aliases file already configured"
     fi
+
+    # Source dev aliases in shell profiles
+    if [ -f "$HOME/.bashrc" ] && ! grep -q "dev_aliases" "$HOME/.bashrc"; then
+        echo "" >> "$HOME/.bashrc"
+        echo "# Load development aliases" >> "$HOME/.bashrc"
+        echo "[ -f ~/.dev_aliases ] && source ~/.dev_aliases" >> "$HOME/.bashrc"
+    fi
+
+    if [ -f "$HOME/.zshrc" ] && ! grep -q "dev_aliases" "$HOME/.zshrc"; then
+        echo "" >> "$HOME/.zshrc"
+        echo "# Load development aliases" >> "$HOME/.zshrc"
+        echo "[ -f ~/.dev_aliases ] && source ~/.dev_aliases" >> "$HOME/.zshrc"
+    fi
+
+    log_success "Development aliases configured"
 }
 
 # Setup shell enhancements
