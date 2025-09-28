@@ -151,7 +151,7 @@ install_sdkman() {
     fi
 
     # Install SDKMAN
-    if curl -s "https://get.sdkman.io" | bash; then
+    if curl -s "https://get.sdkman.io?ci=true" | bash; then
         log_success "SDKMAN installed"
 
         # Source SDKMAN

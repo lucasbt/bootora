@@ -230,7 +230,7 @@ bindkey "^[[3~" delete-char
 bindkey "^@" fzf-file-widget
 
 # History settings
-export HISTFILE="$HOME/.zsh_history"
+export HISTFILE=~/.zsh_history
 export HISTSIZE=10000
 export SAVEHIST="$HISTSIZE"
 setopt HIST_FIND_NO_DUPS
