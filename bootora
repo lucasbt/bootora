@@ -312,6 +312,16 @@ clean_cache() {
 
 # Main execution
 main() {
+    # Handle autocomplete
+    case "${1:-}" in
+        "autocomplete_modules")
+            # Apenas lista os módulos, sem iniciar nada
+            list_modules_autocomplete
+            exit 0
+            ;;
+    esac
+
+
     # Initialize environment
     init_bootora_env
     check_environment
@@ -319,9 +329,6 @@ main() {
 
     # Handle command line arguments
     case "${1:-}" in
-        "autocomplete")
-            list_modules_autocomplete
-            ;;
         "install")
             create_lock
             trap remove_lock EXIT

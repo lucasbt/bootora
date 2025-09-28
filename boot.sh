@@ -233,7 +233,7 @@ _bootora() {
     case "$prev" in
         module)
             local modules
-            modules=$(bootora list_modules_autocomplete 2>/dev/null)
+            modules=$(bootora autocomplete_modules 2>/dev/null)
             COMPREPLY=( $(compgen -W "${modules}" -- "$cur") )
             return 0
             ;;
@@ -275,7 +275,7 @@ _bootora() {
     modules)
       if [[ $words[2] == module ]]; then
         local -a modules
-        modules=("${(@f)$(bootora list_modules_autocomplete 2>/dev/null)}")
+        modules=("${(@f)$(bootora autocomplete_modules 2>/dev/null)}")
         _values 'modules' $modules
       fi
       ;;
