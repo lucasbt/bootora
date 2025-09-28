@@ -146,7 +146,8 @@ execute_module() {
 
     # Source the module and execute it
     if source "$script_path" && execute_${module}_module; then
-        log_success "Module '$module' completed successfully"
+        echo
+        log_success "Module '$module' finished successfully"
         update_state "$module" "true"
         return 0
     else
