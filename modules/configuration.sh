@@ -472,13 +472,13 @@ configure_automatic_updates() {
         local auto_config="/etc/dnf/automatic.conf"
         if [ -n "$auto_config" ]; then
             if grep -q "apply_updates" "$auto_config"; then
-                superuser_do sed -i 's/^[[:space:]]*#\?[[:space:]]*apply_updates[[:space:]]*=.*/apply_updates = yes/' "$auto_config"
+                sudo sed -i 's/^\s*#\?\s*apply_updates\s*=.*/apply_updates = yes/' "$auto_config"
             else
                 echo "apply_updates = yes" | superuser_do tee -a "$auto_config" >/dev/null
             fi
 
             if grep -q "upgrade_type" "$auto_config"; then
-                superuser_do sed -i 's/^[[:space:]]*#\?[[:space:]]*upgrade_type[[:space:]]*=.*/upgrade_type = security/' "$auto_config"
+                sudo sed -i 's/^\s*#\?\s*upgrade_type\s*=.*/upgrade_type = security/' "$auto_config"
             else
                 echo "upgrade_type = security" | superuser_do tee -a "$auto_config" >/dev/null
             fi
