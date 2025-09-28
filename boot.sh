@@ -321,6 +321,7 @@ EOF
             echo "$zsh_line" >> "$HOME/.zshrc"
             echo "autoload -Uz compinit && compinit" >> "$HOME/.zshrc"
         fi
+    fi
 
     print_status "Autocomplete installed for Bash and Zsh"
     print_warning "To enable autocomplete, restart your terminal or run: source ~/.bashrc ou source ~/.zshrc"
