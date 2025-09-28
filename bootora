@@ -157,6 +157,13 @@ execute_module() {
     fi
 }
 
+# Lista apenas os nomes dos módulos (para autocomplete)
+list_modules_autocomplete() {
+    for module in "${MODULE_ORDER[@]}"; do
+        echo "$module"
+    done
+}
+
 # List modules
 list_modules() {
     log_header "Available Modules"

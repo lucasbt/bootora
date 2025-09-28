@@ -233,7 +233,7 @@ _bootora() {
     case "$prev" in
         module)
             local modules
-            modules=$(bootora list 2>/dev/null | awk '{print $1}' | grep -v 'Available' | grep -v '^$')
+            modules=$(bootora list_modules_autocomplete 2>/dev/null)
             COMPREPLY=( $(compgen -W "${modules}" -- "$cur") )
             return 0
             ;;
@@ -275,9 +275,7 @@ _bootora() {
     modules)
       if [[ $words[2] == module ]]; then
         local -a modules
-        for name in ${(f)"$(bootora list 2>/dev/null | awk '{print $1}' | grep -v 'Available' | grep -v '^$')"}; do
-          modules+=("$name")
-        done
+        modules=("${(@f)$(bootora list_modules_autocomplete 2>/dev/null)}")
         _values 'modules' $modules
       fi
       ;;
@@ -307,7 +305,7 @@ EOF
     fi
 
     print_status "Autocomplete installed for Bash and Zsh"
-    print_warning "To enable autocomplete, restart your terminal ou rode: source ~/.bashrc ou source ~/.zshrc"
+    print_warning "To enable autocomplete, restart your terminal or run: source ~/.bashrc ou source ~/.zshrc"
 }
 
 # Main bootstrap function
