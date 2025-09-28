@@ -290,8 +290,8 @@ _bootora() {
     modules)
       if [[ $words[2] == module ]]; then
         local -a modules
-        modules=("${(@f)$(bootora autocomplete_modules 2>/dev/null)}")
-        _values 'modules' $modules
+            modules=("${(@f)$(bootora autocomplete_modules 2>/dev/null | grep -v '^\s*$')}")
+            _values 'modules' $modules
       fi
       ;;
   esac
