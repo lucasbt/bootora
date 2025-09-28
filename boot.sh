@@ -169,9 +169,24 @@ create_main_executable() {
 # Fedora Post-Install System
 #
 
-BOOTORA_HOME="$HOME/.local/share/bootora"
+BOOTORA_HOME_LINE='export BOOTORA_HOME="$HOME/.local/share/bootora"'
 
-source "$BOOTORA_HOME/banner.sh"
+# Bash
+if [ -f "$HOME/.bashrc" ] && ! grep -Fxq "$BOOTORA_HOME_LINE" "$HOME/.bashrc"; then
+    echo "" >> "$HOME/.bashrc"
+    echo "# Bootora environment variable" >> "$HOME/.bashrc"
+    echo "$BOOTORA_HOME_LINE" >> "$HOME/.bashrc"
+fi
+
+# Zsh
+if [ -f "$HOME/.zshrc" ] && ! grep -Fxq "$BOOTORA_HOME_LINE" "$HOME/.zshrc"; then
+    echo "" >> "$HOME/.zshrc"
+    echo "# Bootora environment variable" >> "$HOME/.zshrc"
+    echo "$BOOTORA_HOME_LINE" >> "$HOME/.zshrc"
+fi
+
+# Exporta para o shell atual
+export BOOTORA_HOME="$HOME/.local/share/bootora"
 
 if [ ! -d "$BOOTORA_HOME" ]; then
     echo "Error: Bootora not properly installed. Please run the bootstrap script again."
@@ -285,24 +300,27 @@ _bootora() {
 _bootora
 EOF
 
-    # Bash: adiciona ao .bashrc se ainda não estiver, e só para bash
-    if [ -f "$HOME/.bashrc" ] && ! grep -q "$bash_autocomplete" "$HOME/.bashrc"; then
-        echo "" >> "$HOME/.bashrc"
-        echo "# Bootora autocomplete" >> "$HOME/.bashrc"
-        echo 'if [ -n "$BASH_VERSION" ]; then' >> "$HOME/.bashrc"
-        echo "  [ -f \"$bash_autocomplete\" ] && . \"$bash_autocomplete\"" >> "$HOME/.bashrc"
-        echo "fi" >> "$HOME/.bashrc"
+    # Bash: adiciona ao .bashrc se ainda não estiver
+    if [ -f "$HOME/.bashrc" ]; then
+        local bash_line="[ -f \"$bash_autocomplete\" ] && . \"$bash_autocomplete\""
+        if ! grep -Fxq "$bash_line" "$HOME/.bashrc"; then
+            echo "" >> "$HOME/.bashrc"
+            echo "# Bootora autocomplete" >> "$HOME/.bashrc"
+            echo "if [ -n \"\$BASH_VERSION\" ]; then" >> "$HOME/.bashrc"
+            echo "  $bash_line" >> "$HOME/.bashrc"
+            echo "fi" >> "$HOME/.bashrc"
+        fi
     fi
 
     # Zsh: adiciona ao .zshrc se ainda não estiver
     if [ -f "$HOME/.zshrc" ]; then
-        if ! grep -q "$zsh_completion_dir" "$HOME/.zshrc"; then
+        local zsh_line="fpath=(\"$zsh_completion_dir\" \$fpath)"
+        if ! grep -Fxq "$zsh_line" "$HOME/.zshrc"; then
             echo "" >> "$HOME/.zshrc"
             echo "# Bootora autocomplete" >> "$HOME/.zshrc"
-            echo "fpath=(\"$zsh_completion_dir\" \$fpath)" >> "$HOME/.zshrc"
+            echo "$zsh_line" >> "$HOME/.zshrc"
             echo "autoload -Uz compinit && compinit" >> "$HOME/.zshrc"
         fi
-    fi
 
     print_status "Autocomplete installed for Bash and Zsh"
     print_warning "To enable autocomplete, restart your terminal or run: source ~/.bashrc ou source ~/.zshrc"

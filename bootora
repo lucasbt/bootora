@@ -312,7 +312,6 @@ clean_cache() {
 
 # Main execution
 main() {
-    echo " Entrou main"
     # Handle autocomplete
     case "${1:-}" in
         "autocomplete_modules")
@@ -322,6 +321,7 @@ main() {
             ;;
     esac
 
+    source "$BOOTORA_HOME/banner.sh"
 
     # Initialize environment
     init_bootora_env
