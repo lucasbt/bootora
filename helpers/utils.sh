@@ -176,7 +176,7 @@ function check_sudo_password() {
 function request_sudo_password() {
     # Se a senha sudo não foi fornecida recentemente, solicita a senha
     if ! check_sudo_password; then
-        warning 'Admin privileges required:'
+        log_warning 'Admin privileges required:'
 
         ATTEMPT=0
         while [ $ATTEMPT -lt $MAX_SUDO_ATTEMPTS ]; do
@@ -192,11 +192,11 @@ function request_sudo_password() {
 
                 if [ $ATTEMPT -eq $MAX_SUDO_ATTEMPTS ]; then
                     # Número máximo de tentativas atingido, exibe mensagem de erro e sai do script
-                    error "Maximum number of password attempts reached. Aborting execution..."
+                    log_error "Maximum number of password attempts reached. Aborting execution..."
                     exit 1
                 else
                     # Mensagem de aviso para tentativas adicionais
-                    warning "Incorrect password. Attempted $ATTEMPT from $MAX_SUDO_ATTEMPTS. Please try again."
+                    log_warning "Incorrect password. Attempted $ATTEMPT from $MAX_SUDO_ATTEMPTS. Please try again."
                 fi
             fi
         done
@@ -359,7 +359,7 @@ ask_yes_no() {
 
     while true; do
         read -e -p "$(printf "${PURPLE}${ARROW} %s %s: ${NC}" "$question" "$prompt")" -n 1 -r
-        
+
         case $REPLY in
             [Yy]* ) return 0;;
             [Nn]* ) return 1;;

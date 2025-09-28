@@ -312,11 +312,14 @@ clean_cache() {
 
 # Main execution
 main() {
-    # Handle autocomplete first
-    if [[ "$1" == "autocomplete_modules" ]]; then
-        list_modules_autocomplete
-        exit 0
-    fi
+    # Handle autocomplete
+    case "${1:-}" in
+        "autocomplete_modules")
+            # Apenas lista os módulos, sem iniciar nada
+            list_modules_autocomplete
+            exit 0
+            ;;
+    esac
 
     source "$BOOTORA_HOME/banner.sh"
 
