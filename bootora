@@ -312,12 +312,15 @@ clean_cache() {
 
 # Main execution
 main() {
+    echo " Entrou main"
     # Handle autocomplete
-    # Tratamento do autocomplete antes de qualquer inicialização
-    if [[ "${1:-}" == "autocomplete_modules" ]]; then
-        list_modules_autocomplete
-        exit 0
-    fi
+    case "${1:-}" in
+        "autocomplete_modules")
+            # Apenas lista os módulos, sem iniciar nada
+            list_modules_autocomplete
+            exit 0
+            ;;
+    esac
 
 
     # Initialize environment
