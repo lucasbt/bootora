@@ -319,6 +319,9 @@ main() {
 
     # Handle command line arguments
     case "${1:-}" in
+        "autocomplete")
+            list_modules_autocomplete
+            ;;
         "install")
             create_lock
             trap remove_lock EXIT
