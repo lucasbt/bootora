@@ -358,7 +358,7 @@ ask_yes_no() {
     fi
 
     while true; do
-        read -p "${PURPLE}${ARROW} ${question} ${prompt}: ${NC}" -n 1 -r
+        read -e -p "$(printf "${PURPLE}${ARROW} %s %s: ${NC}" "$question" "$prompt")" -n 1 -r
         echo
 
         case $REPLY in
