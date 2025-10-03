@@ -118,7 +118,7 @@ enabled=1
 EOF
 
     # Instala Opera
-    if superuser_do dnf install -y opera; then
+    if superuser_do dnf install -y opera-stable; then
         log_success "Opera Browser installed"
     else
         log_failed "Failed to install Opera Browser"
@@ -191,8 +191,8 @@ install_bitwarden_gui() {
         return 0
     fi
 
-    mkdir -p "$temp_dir"
-    mkdir -p "$install_dir"
+    superuser_do vmkdir -p "$temp_dir"
+    superuser_do mkdir -p "$install_dir"
 
     log_info "Downloading Bitwarden AppImage..."
     if curl -L -o "$appimage_path" "$download_url"; then
@@ -242,8 +242,8 @@ install_bitwarden_cli() {
         return 0
     fi
 
-    mkdir -p "$temp_dir"
-    mkdir -p "$install_dir"
+    superuser_do mkdir -p "$temp_dir"
+    superuser_do mkdir -p "$install_dir"
 
     log_info "Downloading Bitwarden CLI..."
     if curl -L -o "$archive_path" "$download_url"; then

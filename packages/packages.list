@@ -47,13 +47,13 @@ p7zip-plugins
 jq
 yq
 sed
-awk
+gawk
 grep
 
 # Fonts
 fira-code-fonts
 google-roboto-fonts
-google-noto-fonts
+google-noto-sans-fonts
 google-noto-emoji-fonts
 liberation-fonts
 dejavu-sans-fonts
@@ -70,7 +70,7 @@ readline-devel
 bash-completion
 gnome-tweaks
 gnome-extensions-app
-fuse-exfat
+exfatprogs
 gnome-terminal-nautilus
 inxi
 mediainfo
@@ -96,7 +96,6 @@ lsd
 hplip
 hplip-common
 hplip-libs
-exfat-utils
 eza
 google-chrome-stable
 lm_sensors
@@ -113,6 +112,6 @@ ulauncher
 wl-clipboard
 xournalpp
 util-linux-user
-onlyoffice
 httpie
 telegram-desktop
+opera-stable

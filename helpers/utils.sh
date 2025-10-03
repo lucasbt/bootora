@@ -176,7 +176,7 @@ function check_sudo_password() {
 function request_sudo_password() {
     # Se a senha sudo não foi fornecida recentemente, solicita a senha
     if ! check_sudo_password; then
-        log_warning 'Admin privileges required:'
+        log_warning 'Admin privileges required! Please enter your password.'
 
         ATTEMPT=0
         while [ $ATTEMPT -lt $MAX_SUDO_ATTEMPTS ]; do
