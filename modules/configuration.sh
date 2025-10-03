@@ -64,18 +64,6 @@ configure_git_settings() {
     git config --global core.editor nano
     git config --global color.ui auto
     git config --global push.default simple
-    git config --global diff.tool vimdiff
-    git config --global merge.tool vimdiff
-
-    # Set up Git aliases
-    git config --global alias.st status
-    git config --global alias.co checkout
-    git config --global alias.br branch
-    git config --global alias.ci commit
-    git config --global alias.unstage 'reset HEAD --'
-    git config --global alias.last 'log -1 HEAD'
-    git config --global alias.visual '!gitk'
-    git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
     log_success "Git configuration completed"
 }
@@ -201,15 +189,20 @@ configure_zsh() {
     log_info "Setting up ~/.zshrc..."
 
     cat > "$zshrc" << 'EOF'
-# Zsh Configuration
+# ============================
+# Zsh Optimized Configuration
+# ============================
 
 # disable CTRL + S and CTRL + Q
 stty -ixon
+
+# Key bindings for navigation and history search
 
 # navigate words using Ctrl + arrow keys
 # >>> CRTL + right arrow | CRTL + left arrow
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
+
 # search history using Up and Down keys
 # >>> up arrow | down arrow
 bindkey "^[[A" history-beginning-search-backward
@@ -219,6 +212,7 @@ bindkey "^[[B" history-beginning-search-forward
 # >>> CTRL + A | CTRL + E
 bindkey "^A" beginning-of-line
 bindkey "^E" end-of-line
+
 # >>> Home | End
 bindkey "^[[H" beginning-of-line
 bindkey "^[[F" end-of-line
@@ -229,7 +223,9 @@ bindkey "^[[3~" delete-char
 # fzf alias: CTRL + SPACE (gadget parameters configured in the FZF_CTRL_T_COMMAND environment variable)
 bindkey "^@" fzf-file-widget
 
+# =========================
 # History settings
+# =========================
 export HISTFILE=~/.zsh_history
 export HISTSIZE=10000
 export SAVEHIST="$HISTSIZE"
@@ -246,25 +242,32 @@ setopt APPEND_HISTORY
 setopt HIST_IGNORE_SPACE
 # enable comments "#" expressions in the prompt shell
 setopt INTERACTIVE_COMMENTS
-
 setopt AUTO_CD
 setopt CORRECT
 
+# =========================
 # Load aliases and functions
+# =========================
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 [ -f ~/.bash_functions ] && source ~/.bash_functions
+[ -f ~/.dev_aliases ] && source ~/.dev_aliases
 
-# Enable plugins
+# =========================
+# Plugins
+# =========================
 source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fpath+=(~/.zsh/plugins/zsh-completions/src)
-autoload -Uz compinit && compinit
 
 # load fzf keybindings and completions
 eval "$(fzf --zsh)"
 
-# Starship prompt
-eval "$(starship init zsh)"
+# =========================
+# Starship prompt lazy init
+# =========================
+if (( $+commands[starship] )); then
+    eval "$(starship init zsh)"
+fi
 EOF
 
     log_success "Zsh configured with Starship and plugins"
@@ -405,60 +408,6 @@ EOF
         log_success "Created SSH config at $ssh_config_file"
     fi
 
-    # Function to write ssh-agent startup logic
-    write_ssh_agent_bootstrap() {
-        cat <<'EOF'
-
-# SSH agent setup (compatible with tmux and multiple shells)
-SSH_ENV="$HOME/.ssh/agent.env"
-
-start_agent() {
-    echo "Initializing new SSH agent..."
-    /usr/bin/ssh-agent -s | sed 's/^echo/#echo/' > "$SSH_ENV"
-    chmod 600 "$SSH_ENV"
-    source "$SSH_ENV" > /dev/null
-    ssh-add ~/.ssh/*_rsa ~/.ssh/id_ed25519 ~/.ssh/*.key 2>/dev/null
-}
-
-load_agent() {
-    if [ -f "$SSH_ENV" ]; then
-        source "$SSH_ENV" > /dev/null
-        if ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
-            start_agent
-        fi
-    else
-        start_agent
-    fi
-}
-
-# Only run once per real session (not every tmux pane)
-if [ -z "$TMUX" ] || [ -z "$SSH_AUTH_SOCK" ]; then
-    load_agent
-fi
-export SSH_AUTH_SOCK
-EOF
-    }
-
-    # Add SSH agent to bash and zsh config
-    for shell_file in "$bashrc_file" "$zshrc_file"; do
-        if [[ -f "$shell_file" && ! $(grep "SSH agent setup" "$shell_file") ]]; then
-            write_ssh_agent_bootstrap >> "$shell_file"
-            log_success "Added ssh-agent bootstrap to $shell_file"
-        fi
-    done
-
-    # Load agent into current session
-    if [ -f "$ssh_env_file" ]; then
-        source "$ssh_env_file" > /dev/null
-        if ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
-            eval "$(ssh-agent -s)" >/dev/null
-            ssh-add ~/.ssh/*_rsa ~/.ssh/id_ed25519 ~/.ssh/*.key 2>/dev/null
-        fi
-    else
-        eval "$(ssh-agent -s)" >/dev/null
-        ssh-add ~/.ssh/*_rsa ~/.ssh/id_ed25519 ~/.ssh/*.key 2>/dev/null
-    fi
-
     log_success "SSH agent configured with support for bash, zsh, and tmux"
 }
 
@@ -571,250 +520,7 @@ configure_folders_development_environment() {
     cp -r "$HOME/Pictures/"* "$HOME/Documents/resources/pictures/" 2>/dev/null || true
     rm -rf "$HOME/Pictures" && ln -s "$HOME/Documents/resources/pictures" "$HOME/Pictures"
 
-    # Configure development tools
-    configure_vim
-    configure_development_aliases
-
     log_success "Development and folders environment configured"
-}
-
-# Configure Vim
-configure_vim() {
-    log_info "Configuring Vim..."
-
-    local vimrc="$HOME/.vimrc"
-
-    if [ ! -f "$vimrc" ]; then
-        cat > "$vimrc" << 'EOF'
-" Bootora Vim configuration
-set number
-set relativenumber
-set tabstop=4
-set shiftwidth=4
-set expandtab
-set autoindent
-set smartindent
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-set showmatch
-set ruler
-set wildmenu
-set wildmode=longest,list,full
-set backspace=indent,eol,start
-set encoding=utf-8
-set fileencoding=utf-8
-set laststatus=2
-set cursorline
-set mouse=a
-
-" Enable syntax highlighting
-syntax on
-filetype on
-filetype plugin on
-filetype indent on
-
-" Color scheme
-colorscheme desert
-
-" Key mappings
-nnoremap <F2> :set invpaste paste?<CR>
-set pastetoggle=<F2>
-nnoremap <F3> :set invnumber<CR>
-nnoremap <F4> :set invrelativenumber<CR>
-
-" Save with Ctrl+S
-nnoremap <C-s> :write<CR>
-inoremap <C-s> <Esc>:write<CR>a
-
-" Auto-save when focus is lost
-au FocusLost * :wa
-
-" Remove trailing whitespace on save
-autocmd BufWritePre * :%s/\s\+$//e
-EOF
-        log_success "Vim configured"
-    else
-        log_info "Vim already configured"
-    fi
-}
-
-# Configure development aliases
-configure_development_aliases() {
-    log_info "Setting up development aliases..."
-
-    local dev_aliases="$HOME/.dev_aliases"
-
-    if [ ! -f "$dev_aliases" ]; then
-        cat > "$dev_aliases" << 'EOF'
-# General
-alias h="history"
-alias open='xdg-open'
-alias :q=exit
-
-# Development aliases
-alias py='python3'
-alias pip='pip3'
-alias urlencode='python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus(sys.argv[1]))"'
-alias urldecode='python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus(sys.argv[1]))"'
-
-# Git aliases
-alias g="git"
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gcm='git commit -m'
-alias gcam='git commit -a -m'
-alias gcad='git commit -a --amend'
-alias gp='git push'
-alias gl='git log --oneline'
-alias gd='git diff'
-alias gb='git branch'
-alias gco='git checkout'
-alias gcb='git checkout -b'
-alias gm='git merge'
-alias gr='git rebase'
-alias gf='git fetch'
-alias gpl='git pull'
-
-# Docker aliases
-alias d='docker'
-alias dps='docker ps'
-alias dpsa='docker ps -a'
-alias di='docker images'
-alias dex='docker exec -it'
-alias dlog='docker logs'
-alias dc='docker-compose'
-alias dcup='docker-compose up -d'
-alias dcdown='docker-compose down'
-alias dclogs='docker-compose logs -f'
-
-# Kubernetes aliases
-alias k='kubectl'
-alias kgp='kubectl get pods'
-alias kgs='kubectl get services'
-alias kgd='kubectl get deployments'
-alias kdp='kubectl describe pod'
-alias kds='kubectl describe service'
-alias kdd='kubectl describe deployment'
-alias kaf='kubectl apply -f'
-alias kdf='kubectl delete -f'
-
-# System aliases
-alias ll='ls -alFh'
-alias la='ls -A'
-alias l='ls -CF'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias ~='cd ~'
-alias -- -='cd -'
-alias mkdir='mkdir -pv'
-alias rmdir='rmdir -v'
-alias cp='cp -iv'
-alias mv='mv -iv'
-alias rm='rm -Iv'
-alias ln='ln -iv'
-alias chmod='chmod --preserve-root'
-alias chown='chown --preserve-root'
-alias chgrp='chgrp --preserve-root'
-
-# Package management
-alias dnfi='sudo dnf install'
-alias dnfs='dnf search'
-alias dnfu='sudo dnf update'
-alias dnfr='sudo dnf remove'
-alias dnfh='dnf history'
-alias dnfc='sudo dnf clean all'
-
-# Flatpak aliases
-alias fpi='flatpak install'
-alias fps='flatpak search'
-alias fpu='flatpak update'
-alias fpr='flatpak uninstall'
-alias fpl='flatpak list'
-
-# Development servers
-alias nodeserver='npx http-server -p 8000'
-alias reactdev='npm start'
-alias vuedev='npm run serve'
-
-# Text processing
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
-alias diff='diff --color=auto'
-
-# System monitoring
-alias meminfo='free -m -l -t'
-alias psmem='ps auxf | sort -nr -k 4'
-alias psmem10='ps auxf | sort -nr -k 4 | head -10'
-alias pscpu='ps auxf | sort -nr -k 3'
-alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
-alias cpuinfo='lscpu'
-alias gpumeminfo='grep -Ei --color "MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapTotal|SwapFree" /proc/meminfo'
-
-# Disk usage
-alias du='du -kh'
-alias df='df -h'
-alias dus='du -sh * | sort -hr'
-
-# Archive operations
-alias mktar='tar -cvf'
-alias mkbz2='tar -cvjf'
-alias mkgz='tar -cvzf'
-alias untar='tar -xvf'
-alias unbz2='tar -xvjf'
-alias ungz='tar -xvzf'
-
-# Date and time
-alias now='date +"%T"'
-alias nowdate='date +"%d-%m-%Y"'
-alias nowtime='date +"%d-%m-%Y %T"'
-
-# Network aliases
-alias ports='ss -tulanp'
-alias listening='ss -tln'
-alias ping='ping -c 5'
-alias wget='wget -c'
-alias curl='curl -L'
-alias flush="dscacheutil -flushcache"
-alias ips="ip -o addr show | awk '{if (\$3 == \"inet\") {print \$2 \": \" \$4 \" (IPv4)\"} else {print \$2 \": \" \$4 \" (IPv6)\"}}' | sed 's/\/[0-9]*//'"
-alias weather='curl wttr.in'
-alias pubip="curl -s https://checkip.amazonaws.com"
-alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
-
-# Quick edits
-alias bashrc='$EDITOR ~/.bashrc'
-alias zshrc='$EDITOR ~/.zshrc'
-alias vimrc='$EDITOR ~/.vimrc'
-alias hosts='sudo $EDITOR /etc/hosts'
-
-# copy working directory
-alias cwd='pwd | tr -d "\r\n" | xclip -selection clipboard'
-
-# Pipe my public key to my clipboard.
-alias pubkey="more ~/.ssh/id_ed25519.pub | xclip -selection clipboard | echo '=> Public key copied to pasteboard.'"
-EOF
-    else
-        log_info "Development aliases file already configured"
-    fi
-
-    # Source dev aliases in shell profiles
-    if [ -f "$HOME/.bashrc" ] && ! grep -q "dev_aliases" "$HOME/.bashrc"; then
-        echo "" >> "$HOME/.bashrc"
-        echo "# Load development aliases" >> "$HOME/.bashrc"
-        echo "[ -f ~/.dev_aliases ] && source ~/.dev_aliases" >> "$HOME/.bashrc"
-    fi
-
-    if [ -f "$HOME/.zshrc" ] && ! grep -q "dev_aliases" "$HOME/.zshrc"; then
-        echo "" >> "$HOME/.zshrc"
-        echo "# Load development aliases" >> "$HOME/.zshrc"
-        echo "[ -f ~/.dev_aliases ] && source ~/.dev_aliases" >> "$HOME/.zshrc"
-    fi
-
-    log_success "Development aliases configured"
 }
 
 # Setup shell enhancements
@@ -823,9 +529,6 @@ setup_shell_enhancements() {
 
     enable_nano_syntax_highlighting
 
-    # Create useful functions
-    create_shell_functions
-
     # Configure shell completion
     configure_shell_completion
 
@@ -833,436 +536,6 @@ setup_shell_enhancements() {
     setup_directory_bookmarks
 
     log_success "Shell enhancements configured"
-}
-
-# Create shell functions
-create_shell_functions() {
-    local functions_file="$HOME/.bash_functions"
-
-    if [ ! -f "$functions_file" ]; then
-        cat > "$functions_file" << 'EOF'
-#!/bin/bash
-# Bootora shell functions
-
-# Extract function for various archive formats
-extract() {
-    if [ -f "$1" ]; then
-        case $1 in
-            *.tar.bz2)   tar xjf "$1"     ;;
-            *.tar.gz)    tar xzf "$1"     ;;
-            *.bz2)       bunzip2 "$1"     ;;
-            *.rar)       unrar x "$1"     ;;
-            *.gz)        gunzip "$1"      ;;
-            *.tar)       tar xf "$1"      ;;
-            *.tbz2)      tar xjf "$1"     ;;
-            *.tgz)       tar xzf "$1"     ;;
-            *.zip)       unzip "$1"       ;;
-            *.Z)         uncompress "$1"  ;;
-            *.7z)        7z x "$1"        ;;
-            *.xz)        unxz "$1"        ;;
-            *.exe)       cabextract "$1"  ;;
-            *)           echo "'$1': unrecognized file compression" ;;
-        esac
-    else
-        echo "'$1' is not a valid file"
-    fi
-}
-
-# Create directory and cd into it
-mkd() {
-    mkdir -p "$1" && cd "$1"
-}
-
-# Make a temporary directory and enter it
-function td() {
-	local dir
-	if [ $# -eq 0 ]; then
-		dir=$(mktemp -d)
-	else
-		dir=$(mktemp -d -t "${1}.XXXXXXXXXX")
-	fi
-	cd "$dir" || exit
-}
-
-# Create a data URL from a file
-function dataurl() {
-	local mimeType=$(file -b --mime-type "$1");
-	if [[ $mimeType == text/* ]]; then
-		mimeType="${mimeType};charset=utf-8";
-	fi
-	echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')";
-}
-
-function shorturl() {
-    if [ -z "$1" ]; then
-        echo "Use: shorturl <URL>"
-        return 1
-    fi
-
-    local shortened_url=$(curl -s "https://tinyurl.com/api-create.php?url=${1}")
-
-    if [ $? -eq 0 ]; then
-        echo "URL Shortened: $shortened_url"
-
-        # Copia para o clipboard
-        if command -v xclip &> /dev/null; then
-            echo -n "$shortened_url" | xclip -selection clipboard
-            echo "Shortened URL copied to clipboard."
-        elif command -v pbcopy &> /dev/null; then
-            echo -n "$shortened_url" | pbcopy
-            echo "Shortened URL copied to clipboard."
-        else
-            echo "Shortened URL, but could not copy to clipboard. Install xclip or pbcopy."
-        fi
-    else
-        echo "Error shortening the URL on the https://tinyurl.com service."
-        return 1
-    fi
-}
-
-# Find and kill process by name
-kp() {
-    ps aux | grep "$1" | grep -v grep | awk '{print $2}' | xargs kill -9
-}
-
-# Quick backup function
-bkp() {
-    cp "$1" "${1}.backup.$(date +%Y%m%d_%H%M%S)"
-}
-
-# Find large files
-fl() {
-    find . -type f -size +${1:-100M} -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'
-}
-
-# Git functions
-gitignore() {
-    curl -sLw "\n" "https://www.gitignore.io/api/$1"
-}
-
-# Docker functions
-dockerclean() {
-    docker system prune -af
-    docker volume prune -f
-}
-
-dockerstop() {
-    docker stop $(docker ps -aq)
-}
-
-dockerrm() {
-    docker rm $(docker ps -aq)
-}
-
-# Network functions
-port() {
-    ss -tulpn | grep ":$1"
-}
-
-# Show all the names (CNs and SANs) listed in the SSL certificate
-# for a given domain
-function getcertnames() {
-	if [ -z "${1}" ]; then
-		echo "ERROR: No domain specified.";
-		return 1;
-	fi;
-
-	local domain="${1}";
-	echo "Testing ${domain}…";
-	echo ""; # newline
-
-	local tmp=$(echo -e "GET / HTTP/1.0\nEOT" \
-		| openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1);
-
-	if [[ "${tmp}" = *"-----BEGIN CERTIFICATE-----"* ]]; then
-		local certText=$(echo "${tmp}" \
-			| openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
-			no_serial, no_sigdump, no_signame, no_validity, no_version");
-		echo "Common Name:";
-		echo ""; # newline
-		echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//";
-		echo ""; # newline
-		echo "Subject Alternative Name(s):";
-		echo ""; # newline
-		echo "${certText}" | grep -A 1 "Subject Alternative Name:" \
-			| sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2;
-		return 0;
-	else
-		echo "ERROR: Certificate not found.";
-		return 1;
-	fi;
-}
-
-# UTF-8-encode a string of Unicode symbols
-function uniencode() {
-	local args
-	mapfile -t args < <(printf "%s" "$*" | xxd -p -c1 -u)
-	printf "\\\\x%s" "${args[@]}"
-	# print a newline unless we’re piping the output to another program
-	if [ -t 1 ]; then
-		echo ""; # newline
-	fi
-}
-
-# Decode \x{ABCD}-style Unicode escape sequences
-function unidecode() {
-	perl -e "binmode(STDOUT, ':utf8'); print \"$*\""
-	# print a newline unless we’re piping the output to another program
-	if [ -t 1 ]; then
-		echo ""; # newline
-	fi
-}
-
-# `treel` is a shorthand for `tree` with hidden files and color enabled, ignoring
-# the `.git` directory, listing directories first. The output gets piped into
-# `less` with options to preserve color and line numbers, unless the output is
-# small enough for one screen.
-function treel() {
-	tree -aC -I '.git|node_modules' --dirsfirst "$@" | less -FRNX;
-}
-
-# Check if uri is up
-function isup() {
-	local uri=$1
-
-	if curl -s --head --request GET "$uri" | grep "200 OK" > /dev/null; then
-		notify-send --urgency=low "All Ok! $uri is up"
-	else
-		notify-send --urgency=critical "Critical! $uri is down"
-	fi
-}
-
-# Copy w/ progress
-function cpr () {
-  rsync -WavP --human-readable --progress $1 $2
-}
-
-# take this repo and copy it to somewhere else minus the .git stuff.
-function gitexport(){
-	local branch="${2:-main}";
-	mkdir -p "$1"
-	git archive "$branch" | tar -x -C "$1"
-}
-
-# System info function
-sysinfo() {
-    echo "=== System Information ==="
-    echo "Hostname: $(hostname)"
-    echo "OS: $(cat /etc/os-release | grep PRETTY_NAME | cut -d'"' -f2)"
-    echo "Kernel: $(uname -r)"
-    echo "Uptime: $(uptime -p)"
-    echo "CPU: $(lscpu | grep 'Model name' | cut -d':' -f2 | xargs)"
-    echo "Memory: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
-    echo "Disk: $(df -h / | tail -1 | awk '{print $3 "/" $2 " (" $5 " used)"}')"
-}
-
-# `o` with no arguments opens the current directory, otherwise opens the given
-# location
-function o() {
-	if [ $# -eq 0 ]; then
-		xdg-open . > /dev/null 2>&1;
-	else
-		xdg-open "$@" > /dev/null 2>&1;
-	fi;
-}
-
-# Development functions
-
-# Start an HTTP server from a directory, optionally specifying the port
-function server() {
-	local port="${1:-8000}";
-    local directory_publish="."
-    if [ ! -z "${2}" ]; then
-        directory_publish=${2}
-    fi
-	python3 -m http.server ${port} --bind 0.0.0.0 --directory ${directory_publish}
-}
-
-jsonformat() {
-    if [ -n "$1" ] && [ -f "$1" ]; then
-        python3 -m json.tool "$1"
-    else
-        echo "$@" | python3 -m json.tool
-    fi
-}
-
-# Quick note function
-note() {
-    echo "$(date): $*" >> "$HOME/Documents/notes.txt"
-}
-
-viewnotes() {
-    cat "$HOME/Documents/notes.txt"
-}
-
-# Project initialization
-# Initialize a project in ~/Develop/personal or ~/Develop/work
-initproject() {
-    local type="personal"
-    local name=""
-
-    case "$1" in
-        --p) type="personal"; name="$2" ;;
-        --w) type="work"; name="$2" ;;
-        *)   name="$1" ;;  # Default to personal
-    esac
-
-    if [ -z "$name" ]; then
-        echo "Usage: initproject [--p|--w] <project-name>"
-        return 1
-    fi
-
-    local base_dir="$HOME/Develop/$type"
-    local project_dir="$base_dir/$name"
-
-    mkdir -p "$project_dir"
-    cd "$project_dir" || return 1
-
-    git init
-    echo "# $name" > README.md
-    echo "Project '$name' initialized in '$project_dir' (type: $type)"
-}
-
-######## AWS
-
-# Get currently logged in aws account name
-function awsaccount() {
-  aws iam list-account-aliases | jq ".AccountAliases[0]" -r
-}
-
-# List all clusters for the current role
-function awslistclusters() {
-  aws ecs list-clusters | jq -r '.clusterArns|map((./"/")[1])|.[]'
-}
-
-# List all services for the specified cluster
-function awslistservices() {
-  aws ecs list-services --cluster $1 | jq -r '.serviceArns|map((./"/")[1])|.[]'
-}
-
-# List all services by cluster for the current role
-function awslistservicesbycluster() {
-  local clusters services
-  clusters=($(awslistclusters))
-  for c in "${clusters[@]}"; do
-    services=($(awslistservices $c))
-    for s in "${services[@]}"; do
-      echo "$c $s"
-    done
-    [[ ${#services[@]} > 0 ]] && echo
-  done
-}
-
-# List all aws tasks for the given cluster and service
-function awslisttasks() {
-  aws ecs list-tasks --cluster $1 --service-name $2 \
-    | jq -r '.taskArns|map((./"/")[1])|.[]'
-}
-
-# List task definitions for all running tasks for the given cluster and service
-function awslisttaskdefinitions() {
-  local t=$(aws ecs describe-tasks --cluster $1 --tasks $(awslisttasks $1 $2))
-  echo $t | jq -r '.tasks|map((.taskDefinitionArn/"/")[1])|.[]'
-}
-
-# Return the current task definition for the given cluster and service
-function awstaskdefinition() {
-  local tds
-  if [[ "$1" =~ : ]]; then
-    tds=($1)
-  else
-    tds=($(awslisttaskdefinitions $1 $2 | uniq))
-    shift
-  fi
-  shift
-  for td in "${tds[@]}"; do
-    aws ecs describe-task-definition --task-definition $td | jq "$@"
-  done
-}
-
-# List all diffs over time for a given task definition env vars
-function awstaskdefinitionenvhistory() {
-  local cur=$2 max=$3 next diff a b
-  [[ ! "$cur" ]] && cur=0
-  [[ ! "$max" ]] && max=9999
-  if [[ $(($cur+1-1)) != "$cur" || $(($max+1-1)) != "$max" ]]; then
-    echo "Usage: aws-task-definition-env-history td-name [start-rev] [end-rev]"
-    return 1
-  fi
-  while [[ $cur != $max ]]; do
-    next=$((cur+1))
-    b=$(awstaskdefinitionenv $1:$next 2>/dev/null | sort)
-    if [[ ! "$b" ]]; then
-      echo "No more revisions."
-      return
-    fi
-    a=
-    if [[ $cur != 0 ]]; then
-      echo -ne "\rComparing revisions $cur and $next..." 1>&2
-      a=$(awstaskdefinitionenv $1:$cur 2>/dev/null | sort)
-    fi
-    diff=$(diff <(echo "$a") <(echo "$b"))
-    if [[ "$diff" ]]; then
-      echo -ne '\r' 1>&2
-      if [[ $cur == 0 ]]; then
-        echo "Initial values"
-      else
-        echo "Differences between revisions $cur and $next"
-      fi
-      echo "-------------------------------------------"
-      echo "$diff"
-      echo "==========================================="
-    fi
-    cur=$((cur+1))
-  done
-}
-
-# Print out VAR=VALUE lines for env of the current task definition for the given
-# cluster and service
-function awstaskdefinitionenv() {
-  awstaskdefinition "$@" \
-    -r '.taskDefinition.containerDefinitions[0].environment|map(.name+"="+.value)|.[]'
-}
-
-# Stop all aws tasks for the given cluster and service
-function awsstoptasks() {
-  local tasks count cluster pad s t
-  cluster=$1; shift
-  for s in "$@"; do
-    [[ "$pad" ]] && echo; pad=1
-    echo "Finding tasks for service <$s> on cluster <$cluster>"
-    tasks=($(awslisttasks $cluster $s))
-    count=${#tasks[@]}
-    if [[ $count == 0 ]]; then
-      echo "No tasks found, skipping"
-      continue
-    fi
-    echo "${#tasks[@]} task(s) found"
-    for t in "${tasks[@]}"; do
-      echo "Stopping task $t"
-      aws ecs stop-task --cluster $cluster --task $t --query 'task.stoppedReason' --output=text
-    done
-  done
-}
-EOF
-
-        # Source functions in shell profiles
-        if [ -f "$HOME/.bashrc" ] && ! grep -q "bash_functions" "$HOME/.bashrc"; then
-            echo "" >> "$HOME/.bashrc"
-            echo "# Load custom functions" >> "$HOME/.bashrc"
-            echo "[ -f ~/.bash_functions ] && source ~/.bash_functions" >> "$HOME/.bashrc"
-        fi
-
-        if [ -f "$HOME/.zshrc" ] && ! grep -q "bash_functions" "$HOME/.zshrc"; then
-            echo "" >> "$HOME/.zshrc"
-            echo "# Load custom functions" >> "$HOME/.zshrc"
-            echo "[ -f ~/.bash_functions ] && source ~/.bash_functions" >> "$HOME/.zshrc"
-        fi
-
-        log_success "Shell functions created"
-    else
-        log_info "Shell functions already exist"
-    fi
 }
 
 # Configure shell completion

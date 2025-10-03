@@ -157,8 +157,6 @@ install_sdkman() {
         # Source SDKMAN
         source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-        #add_sdkman_to_shellrc "$HOME/.bashrc" "Bash"
-		#add_sdkman_to_shellrc "$HOME/.zshrc" "Zsh"
         log_success "SDKMAN tool configured"
     else
         log_failed "Failed to install SDKMAN"
@@ -213,32 +211,6 @@ install_sdkman_buildtools() {
     fi
 }
 
-# Função para adicionar configuração ao arquivo de configuração do shell, se ainda não estiver presente
-add_sdkman_to_shellrc() {
-    local shellrc="$1"
-	# Configuração para lazy-load no Zsh
-    local SDKMAN_LAZY_CONFIG='''
-
-# SDKMAN! Lazy Load
-sdk() {
-    unset -f sdk
-    export SDKMAN_DIR=$HOME/.sdkman
-    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-    sdk "$@"
-}
-'''
-
-    if [ -f "$shellrc" ]; then
-		if ! grep -qF "# SDKMAN! Lazy Load" "$shellrc"; then
-			info "Configuring SDKMAN for $2..."
-		    echo "$SDKMAN_LAZY_CONFIG" >> "$shellrc"
-		else
-			success "SDKMAN is already configured for $2..."
-		fi
-    fi
-}
-
-# Install NVM and configure lazy loading + autocompletion in Bash and Zsh
 install_nvm() {
     log_info "Installing NVM..."
     local nvm_install_url="https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh"
@@ -276,17 +248,23 @@ nvm() {
 }
 # <<< nvm lazy load <<<"
 
-    # Configure both Bash and Zsh
+    # Clean up old NVM load blocks added by the installer
     for shell_rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        if grep -q '# >>> nvm lazy load >>>' "$shell_rc"; then
-            log_info "NVM lazy load already configured in $shell_rc"
-        else
+        if [ -f "$shell_rc" ]; then
+            # Remove default nvm.sh and bash_completion lines if present
+            sed -i.bak '/nvm.sh/d' "$shell_rc"
+            sed -i '' '/bash_completion/d' "$shell_rc" 2>/dev/null || sed -i '/bash_completion/d' "$shell_rc"
+
+            # Remove any previously added lazy load blocks to avoid duplicates
+            sed -i.bak '/# >>> nvm lazy load >>>/,/# <<< nvm lazy load <<</d' "$shell_rc"
+
+            # Add correct lazy block
             if [[ "$shell_rc" == *".zshrc" ]]; then
                 echo "$lazy_block_zsh" >> "$shell_rc"
-                log_info "Added NVM lazy load with completion to $shell_rc"
+                log_info "Replaced with NVM lazy load block in $shell_rc"
             else
                 echo "$lazy_block_bash" >> "$shell_rc"
-                log_info "Added NVM lazy load with completion to $shell_rc"
+                log_info "Replaced with NVM lazy load block in $shell_rc"
             fi
         fi
     done
@@ -296,6 +274,7 @@ nvm() {
     [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
 }
+
 
 # Install Node.js using NVM
 install_nodejs() {

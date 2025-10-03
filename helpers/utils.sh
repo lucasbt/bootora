@@ -381,7 +381,8 @@ ask_input() {
     local response
 
     if [ -n "$default" ]; then
-        read -p "$question [$default]: " response
+        read -p "$(printf "${YELLOW}${ARROW} %s [%s]: ${NC}" "$question" "$default")" response
+        #read -p "$question [$default]: " response
         echo "${response:-$default}"
     else
         read -p "$question: " response
