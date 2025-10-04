@@ -81,43 +81,38 @@ log_subheader() {
     echo -e "${CYAN}${ARROW} $1${NC}"
 }
 
-# Progress indicator
+# Progress indicator (contagem simples)
 show_progress() {
     local current=${1:-0}
     local total=${2:-1}
     local description=${3:-}
-    local bar_width=50
 
     # validações / normalizações
     if [ "$total" -le 0 ]; then total=1; fi
     if [ "$current" -lt 0 ]; then current=0; fi
     if [ "$current" -gt "$total" ]; then current=$total; fi
 
-    local percentage=$(( current * 100 / total ))
-    local filled=$(( (percentage * bar_width) / 100 ))
-    local empty=$(( bar_width - filled ))
+    local remaining=$(( total - current ))
 
     # cores (fallback caso não estejam definidas)
-    : "${BLUE:=$'\e[34m'}"
+    : "${GREEN:=$'\e[32m'}"
+    : "${YELLOW:=$'\e[33m'}"
     : "${NC:=$'\e[0m'}"
 
-    # limpa a linha atual desde o cursor até o fim e reescreve tudo
-    printf "\r\033[K"         # <-- ESSA LINHA remove o "lixo"
-    printf "%b[" "$BLUE"
-    if [ "$filled" -gt 0 ]; then
-        printf "%${filled}s" | tr ' ' '='
-    fi
-    if [ "$empty" -gt 0 ]; then
-        printf "%${empty}s" | tr ' ' '-'
-    fi
-    printf "%b] %3d%% - %s" "$NC" "$percentage" "$description"
+    # limpa a linha atual desde o cursor até o fim
+    printf "\r\033[K"
 
-    # se finalizou, pula linha
+    # proposta visual:
+    # [Step 2/5] description... (3 remaining)
+    printf "%b[Step %d/%d]%b %s %b(%d remaining)%b" \
+        "$GREEN" "$current" "$total" "$NC" \
+        "$description" \
+        "$YELLOW" "$remaining" "$NC"
+
     if [ "$current" -ge "$total" ]; then
         printf "\n"
     fi
 }
-
 
 # System detection
 get_system_info() {
