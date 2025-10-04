@@ -79,7 +79,7 @@ NetworkManager-openvpn-gnome
 openvpn
 gparted
 pciutils
-ssh
+openssh-clients
 symlinks
 youtube-dl
 libreoffice

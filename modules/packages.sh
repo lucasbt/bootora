@@ -183,6 +183,7 @@ install_bitwarden_gui() {
     local bin_symlink="/usr/local/bin/bitwarden"
     local desktop_file="$HOME/.local/share/applications/bitwarden.desktop"
     local temp_dir="/tmp/bitwarden"
+    local temp_appimage="$temp_dir/Bitwarden.AppImage"
     local download_url="https://vault.bitwarden.com/download/?app=desktop&platform=linux" # redirects to AppImage
 
     # Check if already installed
@@ -193,9 +194,11 @@ install_bitwarden_gui() {
 
     mkdir -p "$temp_dir"
     superuser_do mkdir -p "$install_dir"
+    superuser_do chmod 755 "$install_dir"
 
     log_info "Downloading Bitwarden AppImage..."
-    if curl -L -o "$appimage_path" "$download_url"; then
+    if curl -L -o "$temp_appimage" "$download_url"; then
+        superuser_do mv "$temp_appimage" "$appimage_path"
         superuser_do chmod +x "$appimage_path"
 
         # Create symlink
