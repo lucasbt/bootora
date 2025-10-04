@@ -95,9 +95,6 @@ enable_nano_syntax_highlighting() {
 configure_shell_environment() {
     log_info "Configuring shell environment..."
 
-    # Configure Bash
-    configure_bash
-
     # Configure Zsh if installed
     if is_command_available "zsh"; then
         configure_zsh
@@ -109,57 +106,6 @@ configure_shell_environment() {
     log_success "Shell environment configured"
 }
 
-# Configure Bash
-configure_bash() {
-    log_info "Configuring Bash..."
-
-    local bashrc="$HOME/.bashrc"
-
-    # Backup existing bashrc
-    backup_file "$bashrc"
-
-    # Add useful Bash configurations
-    if ! grep -q "# Bootora configurations" "$bashrc"; then
-        cat >> "$bashrc" << 'EOF'
-
-# Bootora configurations
-export HISTSIZE=10000
-export HISTFILESIZE=20000
-export HISTCONTROL=ignoredups:erasedups
-export HISTIGNORE="ls:ls *:cd:cd -:pwd:exit:date:* --help"
-shopt -s histappend
-shopt -s checkwinsize
-shopt -s autocd
-shopt -s cdspell
-# Case-insensitive globbing (used in pathname expansion)
-shopt -s nocaseglob
-
-# Better tab completion
-bind 'set completion-ignore-case on'
-bind 'set show-all-if-ambiguous on'
-
-# Improved prompt
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
-    PS1='\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-fi
-
-# Load custom aliases if they exist
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
-# Load custom functions if they exist
-if [ -f ~/.bash_functions ]; then
-    . ~/.bash_functions
-fi
-EOF
-        log_success "Bash configuration added"
-    else
-        log_info "Bash already configured by Bootora"
-    fi
-}
 
 # Configure Zsh
 configure_zsh() {
@@ -184,91 +130,6 @@ configure_zsh() {
 
     # Install Zsh plugins
     install_zsh_plugins
-
-    # Configure .zshrc
-    log_info "Setting up ~/.zshrc..."
-
-    cat > "$zshrc" << 'EOF'
-# ============================
-# Zsh Optimized Configuration
-# ============================
-
-# disable CTRL + S and CTRL + Q
-stty -ixon
-
-# Key bindings for navigation and history search
-
-# navigate words using Ctrl + arrow keys
-# >>> CRTL + right arrow | CRTL + left arrow
-bindkey "^[[1;5C" forward-word
-bindkey "^[[1;5D" backward-word
-
-# search history using Up and Down keys
-# >>> up arrow | down arrow
-bindkey "^[[A" history-beginning-search-backward
-bindkey "^[[B" history-beginning-search-forward
-
-# jump to the start and end of the command line
-# >>> CTRL + A | CTRL + E
-bindkey "^A" beginning-of-line
-bindkey "^E" end-of-line
-
-# >>> Home | End
-bindkey "^[[H" beginning-of-line
-bindkey "^[[F" end-of-line
-
-# delete characters using the "delete" key
-bindkey "^[[3~" delete-char
-
-# fzf alias: CTRL + SPACE (gadget parameters configured in the FZF_CTRL_T_COMMAND environment variable)
-bindkey "^@" fzf-file-widget
-
-# =========================
-# History settings
-# =========================
-export HISTFILE=~/.zsh_history
-export HISTSIZE=10000
-export SAVEHIST="$HISTSIZE"
-setopt HIST_FIND_NO_DUPS
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_SAVE_NO_DUPS
-setopt HIST_REDUCE_BLANKS
-# save each command to the history file as soon as it is executed
-setopt INC_APPEND_HISTORY
-setopt SHARE_HISTORY
-# append new history entries to the history file
-setopt APPEND_HISTORY
-# ignore commands that start with a space in the history
-setopt HIST_IGNORE_SPACE
-# enable comments "#" expressions in the prompt shell
-setopt INTERACTIVE_COMMENTS
-setopt AUTO_CD
-setopt CORRECT
-
-# =========================
-# Load aliases and functions
-# =========================
-[ -f ~/.bash_aliases ] && source ~/.bash_aliases
-[ -f ~/.bash_functions ] && source ~/.bash_functions
-[ -f ~/.dev_aliases ] && source ~/.dev_aliases
-
-# =========================
-# Plugins
-# =========================
-source ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fpath+=(~/.zsh/plugins/zsh-completions/src)
-
-# load fzf keybindings and completions
-eval "$(fzf --zsh)"
-
-# =========================
-# Starship prompt lazy init
-# =========================
-if (( $+commands[starship] )); then
-    eval "$(starship init zsh)"
-fi
-EOF
 
     log_success "Zsh configured with Starship and plugins"
 
@@ -341,18 +202,21 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND=\"\$FZF_DEFAULT_COMMAND\"
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
-# fzf key bindings
-source /usr/share/fzf/shell/key-bindings.bash 2>/dev/null || true"
+# load fzf only when pressing CTRL+T or first fzf command
+zle -N fzf-file-widget fzf_lazy
+
+# Set up fzf key bindings and fuzzy completion"
 
     # Add to bashrc
     if [ -f "$HOME/.bashrc" ] && ! grep -q "fzf configuration" "$HOME/.bashrc"; then
         echo "$fzf_config" >> "$HOME/.bashrc"
+        echo "source <(fzf --bash)" >> "$HOME/.bashrc"
     fi
 
     # Add to zshrc
     if [ -f "$HOME/.zshrc" ] && ! grep -q "fzf configuration" "$HOME/.zshrc"; then
         echo "$fzf_config" >> "$HOME/.zshrc"
-        echo "source /usr/share/fzf/shell/key-bindings.zsh 2>/dev/null || true" >> "$HOME/.zshrc"
+        echo "source <(fzf --zsh)" >> "$HOME/.zshrc"
     fi
 
     log_success "fzf configured"

@@ -191,7 +191,7 @@ install_bitwarden_gui() {
         return 0
     fi
 
-    superuser_do vmkdir -p "$temp_dir"
+    mkdir -p "$temp_dir"
     superuser_do mkdir -p "$install_dir"
 
     log_info "Downloading Bitwarden AppImage..."
@@ -242,7 +242,7 @@ install_bitwarden_cli() {
         return 0
     fi
 
-    superuser_do mkdir -p "$temp_dir"
+    mkdir -p "$temp_dir"
     superuser_do mkdir -p "$install_dir"
 
     log_info "Downloading Bitwarden CLI..."
