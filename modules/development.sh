@@ -100,6 +100,7 @@ execute_development_module() {
         local step_func="${steps[$i]}"
         local step_desc="${descriptions[$i]}"
         show_progress "$step_index" "$total_steps" "$step_desc"
+        echo
         $step_func
     done
 
