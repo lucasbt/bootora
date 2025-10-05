@@ -49,6 +49,7 @@ execute_development_module() {
         install_sdkman
         install_sdkman_jdks
         install_sdkman_buildtools
+        install_nvm
         install_nodejs
         install_golang
         install_python_tools
@@ -64,7 +65,6 @@ execute_development_module() {
         install_awscli
         install_typora
         install_postman
-        install_insomnia
         install_drawio
         install_dbeaver
     )
@@ -73,6 +73,7 @@ execute_development_module() {
         "Installing SDKMAN"
         "Installing SDKMAN - JDKs"
         "Installing SDKMAN - Build Tools"
+        "Installing NVM"
         "Installing Node.js"
         "Installing Go"
         "Installing Python Tools"
@@ -88,7 +89,6 @@ execute_development_module() {
         "Installing AWS CLI"
         "Installing Typora"
         "Installing Postman"
-        "Installing Insomnia"
         "Installing Draw.io"
         "Installing DBeaver"
     )
@@ -224,52 +224,6 @@ install_nvm() {
         log_success "NVM installed"
     fi
 
-    # Define lazy load blocks
-    local lazy_block_bash="
-# >>> nvm lazy load >>>
-export NVM_DIR=\"\$HOME/.nvm\"
-nvm() {
-    unset -f nvm
-    [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"
-    [ -s \"\$NVM_DIR/bash_completion\" ] && . \"\$NVM_DIR/bash_completion\"
-    nvm \"\$@\"
-}
-# <<< nvm lazy load <<<"
-
-    local lazy_block_zsh="
-# >>> nvm lazy load >>>
-export NVM_DIR=\"\$HOME/.nvm\"
-autoload -U bashcompinit
-bashcompinit
-nvm() {
-    unset -f nvm
-    [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"
-    [ -s \"\$NVM_DIR/bash_completion\" ] && . \"\$NVM_DIR/bash_completion\"
-    nvm \"\$@\"
-}
-# <<< nvm lazy load <<<"
-
-    # Clean up old NVM load blocks added by the installer
-    for shell_rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        if [ -f "$shell_rc" ]; then
-            # Remove default nvm.sh and bash_completion lines if present
-            sed -i.bak '/nvm.sh/d' "$shell_rc"
-            sed -i '' '/bash_completion/d' "$shell_rc" 2>/dev/null || sed -i '/bash_completion/d' "$shell_rc"
-
-            # Remove any previously added lazy load blocks to avoid duplicates
-            sed -i.bak '/# >>> nvm lazy load >>>/,/# <<< nvm lazy load <<</d' "$shell_rc"
-
-            # Add correct lazy block
-            if [[ "$shell_rc" == *".zshrc" ]]; then
-                echo "$lazy_block_zsh" >> "$shell_rc"
-                log_info "Replaced with NVM lazy load block in $shell_rc"
-            else
-                echo "$lazy_block_bash" >> "$shell_rc"
-                log_info "Replaced with NVM lazy load block in $shell_rc"
-            fi
-        fi
-    done
-
     # Load NVM and completion for current session
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
@@ -327,7 +281,7 @@ install_golang() {
 
     # Get latest Go version from official website
     local latest_version
-    latest_version=$(curl -s https://go.dev/VERSION?m=text | head -n1 | sed 's/^go//')
+    latest_version=$(curl -s "https://go.dev/VERSION?m=text" | head -n1 | sed 's/^go//')
 
     if [[ -z "$latest_version" ]]; then
         log_failed "Could not fetch the latest Go version"
@@ -531,7 +485,7 @@ install_intellij() {
     local bin_symlink="/usr/local/bin/intellij"
     local temp_dir="/tmp/intellij"
     local desktop_file="$HOME/.local/share/applications/intellij.desktop"
-    local product="ideaIC"  # Use 'ideaIU' for Ultimate Edition
+    local product="IIC"  # Use 'IIU' for Ultimate Edition
 
     # Check if IntelliJ is already installed
     if [[ -d "$install_dir" && -x "$install_dir/bin/idea.sh" ]]; then
@@ -542,6 +496,7 @@ install_intellij() {
     mkdir -p "$temp_dir"
 
     # Get the latest version info via JetBrains API
+    #local json_url="https://download.jetbrains.com/product?code=${product}&platform=linux&latest=true&type=release"
     local json_url="https://data.services.jetbrains.com/products/releases?code=${product}&latest=true&type=release"
     local download_url
     local version
@@ -693,10 +648,10 @@ install_typora() {
 
     log_info "Downloading Typora..."
     if curl -L -o "$archive" "$download_url"; then
-        tar -xzf "$archive" -C "$temp_dir"
+        tar -xzf "$archive" -C "$temp_dir" --strip-components=2
         rm -f "$archive"
 
-        mv "$temp_dir"/* "$install_dir"/
+        mv -f "$temp_dir"/* "$install_dir"/
 
         ln -sf "$install_dir/Typora" "$bin_link"
         log_info "Created symlink: $bin_link → Typora"
@@ -747,7 +702,7 @@ install_postman() {
     if curl -L -o "$archive_path" "$download_url"; then
         # Remove previous install if exists
         superuser_do rm -rf "$install_dir"
-        mkdir -p "$install_dir"
+        superuser_do mkdir -p "$install_dir"
 
         tar -xzf "$archive_path" -C "$temp_dir"
         superuser_do mv "$temp_dir/Postman"/* "$install_dir"
@@ -779,36 +734,6 @@ EOF
 
     # Clean temp
     rm -rf "$temp_dir"
-}
-
-# Install Insomnia (latest RPM) from official repo
-install_insomnia() {
-    log_info "Installing Insomnia..."
-
-    local rpm_url="https://updates.insomnia.rest/downloads/insomnia-latest.rpm"
-    local rpm_file="/tmp/insomnia-latest.rpm"
-
-    # Check if installed
-    if is_command_available "insomnia"; then
-        local current_version
-        current_version=$(insomnia --version 2>/dev/null || echo "unknown")
-        log_info "Insomnia already installed ($current_version)"
-        return 0
-    fi
-
-    log_info "Downloading Insomnia RPM..."
-    if curl -Lo "$rpm_file" "$rpm_url"; then
-        if superuser_do dnf install -y "$rpm_file"; then
-            log_success "Insomnia installed successfully ($(insomnia --version))"
-            rm -f "$rpm_file"
-        else
-            log_failed "Failed to install Insomnia from RPM"
-            return 1
-        fi
-    else
-        log_failed "Failed to download Insomnia RPM"
-        return 1
-    fi
 }
 
 # Install draw.io (latest RPM)
