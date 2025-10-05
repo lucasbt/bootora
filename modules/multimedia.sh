@@ -130,7 +130,7 @@ install_multimedia_codecs() {
         log_info "Installing additional GStreamer plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
         log_info "Installing Lame plugins..."
-        superuser_do dnf install -y --best --allowerasing --skip-broken lame\* --exclude=lame-devel
+        superuser_do dnf install -y --best --allowerasing --skip-broken lame lame-libs --exclude=lame-devel
         log_info "Upgrading Multimedia Group..."
         superuser_do dnf group upgrade -y --with-optional --best --allowerasing --skip-broken Multimedia
     else
