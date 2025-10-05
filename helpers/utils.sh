@@ -225,7 +225,7 @@ install_dnf_package() {
     fi
 
     log_info "Installing $description..."
-    if superuser_do dnf install -y "$package"; then
+    if superuser_do dnf install -y --best --allowerasing --skip-broken "$package"; then
         log_success "$description installed successfully"
         return 0
     else
