@@ -104,8 +104,8 @@ show_progress() {
 
     # proposta visual:
     # [Step 2/5] description... (3 remaining)
-    printf "%b[Step %d/%d]%b %s %b(%d remaining)%b" \
-        "$GREEN" "$current" "$total" "$NC" \
+    printf "%b[Step %d/%d]%b %s %b(%d remaining)%b " \
+        "$PURPLE" "$current" "$total" "$NC" \
         "$description" \
         "$YELLOW" "$remaining" "$NC"
 
