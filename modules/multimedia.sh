@@ -105,7 +105,7 @@ install_multimedia_codecs() {
         log_info "Installing additional codecs from RPM Fusion..."
 
         # Install multimedia group
-        if superuser_do dnf group install -y --with-optional Multimedia; then
+        if superuser_do dnf group install -y --best --allowerasing --skip-broken --with-optional Multimedia; then
             log_success "Multimedia group installed"
         else
             log_warning "Failed to install Multimedia group"
@@ -127,9 +127,9 @@ install_multimedia_codecs() {
             install_dnf_package "$codec" "$codec" || true  # Don't fail if codec installation fails
         done
 
-        superuser_do dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
-        superuser_do dnf install -y lame\* --exclude=lame-devel
-        superuser_do dnf group upgrade -y --with-optional Multimedia
+        superuser_do dnf install -y --best --allowerasing --skip-broken gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
+        superuser_do dnf install -y --best --allowerasing --skip-broken lame\* --exclude=lame-devel
+        superuser_do dnf group upgrade -y --with-optional --best --allowerasing --skip-broken Multimedia
     else
         log_warning "RPM Fusion repositories not available, skipping additional codecs"
     fi
