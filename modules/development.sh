@@ -521,7 +521,7 @@ install_intellij() {
     local archive_path="$temp_dir/intellij.tar.gz"
     if curl -L -o "$archive_path" "$download_url"; then
         superuser_do rm -rf "$install_dir"
-        mkdir -p "$install_dir"
+        superuser_do mkdir -p "$install_dir"
 
         tar -xzf "$archive_path" -C "$temp_dir"
         local extracted_dir
@@ -663,9 +663,9 @@ Version=1.0
 Type=Application
 Name=Typora
 Exec=$bin_link %f
-Icon=$install_dir/resources/app-icons/png/1024x1024.png
+Icon=$install_dir/resources/assets/icon/icon_256x256@2x.png
 Terminal=false
-Categories=Utility;TextEditor;
+Categories=Utility;TextEditor;Markdown;
 StartupNotify=true
 EOF
 
@@ -721,7 +721,7 @@ Name=Postman
 Exec=$install_dir/Postman
 Icon=$install_dir/app/resources/app/assets/icon.png
 Terminal=false
-Categories=Development;WebDevelopment;
+Categories=Development;WebDevelopment;API;
 StartupNotify=true
 EOF
 
@@ -788,7 +788,7 @@ install_dbeaver() {
     if curl -L -o "$archive_path" "$download_url"; then
         # Remove previous install if exists
         superuser_do rm -rf "$install_dir"
-        mkdir -p "$install_dir"
+        superuser_do mkdir -p "$install_dir"
 
         tar -xzf "$archive_path" -C "$temp_dir"
         superuser_do mv "$temp_dir"/dbeaver/* "$install_dir"
