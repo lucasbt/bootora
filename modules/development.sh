@@ -255,6 +255,8 @@ install_nodejs() {
         log_success "Node.js installed via NVM ($(node --version))"
     fi
 
+    superuser_do chown -R $(whoami) /usr/local/lib/node_modules
+
     # Install global npm packages
     log_info "Installing global npm packages..."
     for package in "${npm_packages[@]}"; do
@@ -639,7 +641,7 @@ install_typora() {
     local archive="$temp_dir/typora.tar.gz"
 
     if is_command_available "typora"; then
-        local v=$(typora --version 2>/dev/null || echo "unknown")
+        local v=$(cat $install_dir/version || echo "unknown")
         log_info "Typora already installed ($v)"
         return 0
     fi
