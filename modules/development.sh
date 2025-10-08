@@ -255,6 +255,7 @@ install_nodejs() {
         log_success "Node.js installed via NVM ($(node --version))"
     fi
 
+    superuser_do mkdir -p /usr/local/lib/node_modules
     superuser_do chown -R $(whoami) /usr/local/lib/node_modules
 
     # Install global npm packages
