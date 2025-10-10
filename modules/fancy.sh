@@ -141,6 +141,7 @@ function install_dnf_fonts(){
 function install_nerd_fonts(){
 	log_info "Installing preferred fonts"
 	local FONT_URL_DL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download"
+	local FONTS_DOTS_DIR="$HOME/.local/share/fonts"
 
 	if [ ! ${#FONTS_NERD_LIST[@]} -eq 0 ]; then
 	    log_info "List of fonts that will be installed: \n\n$(echo "${FONTS_NERD_LIST[@]}" | tr ' ' '\n')\n"
