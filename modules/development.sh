@@ -261,7 +261,7 @@ install_nodejs() {
         if superuser_do npm list -g "$package" &>/dev/null; then
             log_info "$package already installed globally"
         else
-            if npm install -g "$package" &>/dev/null; then
+            if superuser_do npm install -g "$package" &>/dev/null; then
                 log_success "Installed $package globally"
             else
                 log_warning "Failed to install $package"
