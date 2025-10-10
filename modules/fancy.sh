@@ -3,7 +3,9 @@
 # Fancy Module - Aesthetics installs and configs
 #
 
-MS_FONTS_VERSION="2.6-1"
+local MS_FONTS_VERSION="2.6-1"
+local FONTS_DOTS_DIR="$HOME/.local/share/fonts"
+local WALLPAPERS_DIR="$HOME/Documents/resources/pictures/wallpapers"
 
 FONTS_DNF_LIST=(
 	mozilla-fira-fonts-common
@@ -141,7 +143,6 @@ function install_dnf_fonts(){
 function install_nerd_fonts(){
 	log_info "Installing preferred fonts"
 	local FONT_URL_DL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download"
-	local FONTS_DOTS_DIR="$HOME/.local/share/fonts"
 
 	if [ ! ${#FONTS_NERD_LIST[@]} -eq 0 ]; then
 	    log_info "List of fonts that will be installed: \n\n$(echo "${FONTS_NERD_LIST[@]}" | tr ' ' '\n')\n"
@@ -179,7 +180,7 @@ function install_urls_fonts(){
 	log_info "Installing preferred fonts from sites"
 
 	if [ ! ${#FONTS_URLS_LIST[@]} -eq 0 ]; then
-	    info "List of URLs where the fonts will be downloaded: \n\n$(echo "${FONTS_URLS_LIST[@]}" | tr ' ' '\n')\n"
+	    log_info "List of URLs where the fonts will be downloaded: \n\n$(echo "${FONTS_URLS_LIST[@]}" | tr ' ' '\n')\n"
 	    mkdir -p "/tmp/fonts/"
 	    log_info "Installing Fonts:"
 
