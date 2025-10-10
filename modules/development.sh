@@ -255,13 +255,10 @@ install_nodejs() {
         log_success "Node.js installed via NVM ($(node --version))"
     fi
 
-    superuser_do mkdir -p /usr/local/lib/node_modules
-    superuser_do chown -R $(whoami) /usr/local/lib/node_modules
-
     # Install global npm packages
     log_info "Installing global npm packages..."
     for package in "${npm_packages[@]}"; do
-        if npm list -g "$package" &>/dev/null; then
+        if superuser_do npm list -g "$package" &>/dev/null; then
             log_info "$package already installed globally"
         else
             if npm install -g "$package" &>/dev/null; then
