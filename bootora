@@ -27,10 +27,11 @@ declare -A MODULES=(
     ["development"]="Development Tools & Languages"
     ["flatpak"]="Flatpak Applications"
     ["configuration"]="System Configuration & Tweaks"
+    ["fancy"]="Fancy Extras (themes, fonts, etc.)"
 )
 
 # Module execution order
-readonly MODULE_ORDER=("system" "packages" "multimedia" "development" "flatpak" "configuration")
+readonly MODULE_ORDER=("system" "packages" "multimedia" "development" "flatpak" "configuration" "fancy")
 
 # Show help
 show_help() {
@@ -112,7 +113,8 @@ init_state() {
         "multimedia": false,
         "development": false,
         "flatpak": false,
-        "configuration": false
+        "configuration": false,
+        "fancy": false
     }
 }
 EOF
