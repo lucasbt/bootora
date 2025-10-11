@@ -214,7 +214,14 @@ function install_urls_fonts(){
 }
 
 function install_icons() {
-	install_from_array "preferred icons" "${ICONS_FAVORITES_LIST[@]}"
+	log_info "Installing icons packages..."
+
+	for icons in "${ICONS_FAVORITES_LIST[@]}"; do
+		install_dnf_package "$icons" "$icons" || true  # Don't fail if icons installation fails
+	done
+
+	log_success "Icons packages installed"
+
 }
 
 
