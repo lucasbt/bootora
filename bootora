@@ -280,18 +280,22 @@ update_system() {
     log_success "Update completed"
 }
 
-# Self-update
+# Self-update (força substituição local pelo remoto)
 self_update() {
     log_header "Updating Bootora"
 
     local current_dir=$(pwd)
-    cd "$SCRIPT_DIR"
+    cd "$SCRIPT_DIR" || return 1
 
     if [ -d ".git" ]; then
-        log_info "Updating from Git repository..."
-        git pull origin main
+        log_info "Updating from Git repository (force overwrite)..."
 
-        # Make scripts executable
+        # Garante que está no branch main e força reset com o remoto
+        git fetch origin
+        git checkout main
+        git reset --hard origin/main
+
+        # Atualiza permissões
         find . -name "*.sh" -exec chmod +x {} \;
         chmod +x bootora
 
@@ -300,7 +304,7 @@ self_update() {
         log_warning "Not a Git repository. Please reinstall using the bootstrap script."
     fi
 
-    cd "$current_dir"
+    cd "$current_dir" || return 1
 }
 
 # Clean cache
