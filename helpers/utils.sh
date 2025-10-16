@@ -24,7 +24,7 @@ readonly NC='\033[0m'
 # Icons/Symbols
 readonly CHECKMARK="✓"
 readonly CROSS="✗"
-readonly ARROW="→"
+readonly ARROW_R="→"
 readonly STAR="★"
 
 # Número máximo de tentativas sudo permitidas
@@ -78,7 +78,7 @@ log_header() {
 }
 
 log_subheader() {
-    echo -e "${CYAN}${ARROW} $1${NC}"
+    echo -e "${CYAN}${ARROW_R} $1${NC}"
 }
 
 # Progress indicator (contagem simples)
@@ -377,7 +377,7 @@ ask_yes_no() {
     fi
 
     while true; do
-        read -e -p "$(printf "${PURPLE}${ARROW} %s %s: ${NC}" "$question" "$prompt")" -n 1 -r
+        read -e -p "$(printf "${PURPLE}${ARROW_R} %s %s: ${NC}" "$question" "$prompt")" -n 1 -r
 
         case $REPLY in
             [Yy]* ) return 0;;
@@ -400,7 +400,7 @@ ask_input() {
     local response
 
     if [ -n "$default" ]; then
-        read -p "$(printf "${YELLOW}${ARROW} %s [%s]: ${NC}" "$question" "$default")" response
+        read -p "$(printf "${YELLOW}${ARROW_R} %s [%s]: ${NC}" "$question" "$default")" response
         #read -p "$question [$default]: " response
         echo "${response:-$default}"
     else
