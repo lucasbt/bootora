@@ -264,8 +264,32 @@ backup_file() {
 
 ensure_directory() {
     local dir="$1"
-    if [ ! -d "$dir" ]; then
-        superuser_do mkdir -p "$dir"
+    [ -n "$dir" ] || return 1
+
+    # Expande ~ para $HOME
+    dir="${dir/#\~/$HOME}"
+
+    # Já existe? Nada a fazer
+    [ -d "$dir" ] && return 0
+
+    # Se o diretório estiver dentro do $HOME, cria sem sudo
+    if [[ "$dir" == "$HOME"* ]]; then
+        mkdir -p -- "$dir"
+        log_info "Created directory: $dir"
+        return 0
+    fi
+
+    # Caso contrário, verifica se o diretório pai é gravável
+    local parent="$dir"
+    while [ ! -e "$parent" ] && [ "$parent" != "/" ]; do
+        parent=$(dirname "$parent")
+    done
+
+    if [ -w "$parent" ]; then
+        mkdir -p -- "$dir"
+        log_info "Created directory: $dir"
+    else
+        superuser_do mkdir -p -- "$dir"
         log_info "Created directory: $dir"
     fi
 }
