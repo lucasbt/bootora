@@ -153,10 +153,6 @@ configure_flatpak_themes() {
         if ! is_flatpak_installed "org.gtk.Gtk3theme.Adwaita-dark"; then
             flatpak install -y flathub org.gtk.Gtk3theme.Adwaita-dark || true
         fi
-
-        if ! is_flatpak_installed "org.freedesktop.Platform.gtk-theme.Adwaita-dark"; then
-            flatpak install -y flathub org.freedesktop.Platform.gtk-theme.Adwaita-dark || true
-        fi
     fi
 
     # Set theme permissions for better integration
@@ -173,11 +169,6 @@ setup_flatpak_desktop_integration() {
     # Update desktop database
     if is_command_available "update-desktop-database"; then
         update-desktop-database "$HOME/.local/share/applications" || true
-    fi
-
-    # Update icon cache
-    if is_command_available "gtk-update-icon-cache"; then
-        gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" || true
     fi
 
     log_success "Desktop integration configured"
