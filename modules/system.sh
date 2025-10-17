@@ -26,7 +26,6 @@ system_update() {
         "ca-certificates"
         "gnupg"
         "dnf-plugins-core"
-        "software-properties-common"
         "lsb-release"
         "dconf-editor"
         "util-linux"
