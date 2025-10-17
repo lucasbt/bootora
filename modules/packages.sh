@@ -200,7 +200,7 @@ install_bitwarden_gui() {
     if curl -L -o "$temp_appimage" "$download_url"; then
         superuser_do mv "$temp_appimage" "$appimage_path"
         superuser_do chmod +x "$appimage_path"
-        sudo curl -L -o $install_dir/bitwarden.png https://github.com/bitwarden/clients/blob/main/apps/desktop/resources/icons/256x256.png?raw=true        
+        sudo curl -L -o "$install_dir/bitwarden.png" https://raw.githubusercontent.com/bitwarden/clients/main/apps/desktop/resources/icons/256x256.png        
 
         # Create symlink
         superuser_do ln -sf "$appimage_path" "$bin_symlink"
