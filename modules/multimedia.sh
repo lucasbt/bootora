@@ -128,7 +128,6 @@ install_multimedia_codecs() {
         
         log_info "Installing ffmpeg..."
         sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
-        sudo dnf install -y ffmpeg-full --allowerasing
         sudo dnf install -y 'ffmpeg-libs'
         
         log_info "Installing additional GStreamer plugins..."
