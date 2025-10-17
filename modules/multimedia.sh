@@ -105,7 +105,7 @@ install_multimedia_codecs() {
         log_info "Installing additional codecs from RPM Fusion..."
 
         # Install multimedia group            
-        if sudo dnf group install multimedia -y --best --allowerasing --skip-broken --with-optional --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin; then
+        if sudo dnf group install multimedia -y --best --allowerasing --skip-broken --with-optional --exclude=PackageKit-gstreamer-plugin; then
             log_success "Multimedia group installed"
         else
             log_warning "Failed to install Multimedia group"
@@ -127,16 +127,16 @@ install_multimedia_codecs() {
         done
         
         log_info "Installing ffmpeg..."
-        sudo dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing
-        sudo dnf install ffmpeg-full --allowerasing
-        sudo dnf install 'ffmpeg-libs'
+        sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
+        sudo dnf install -y ffmpeg-full --allowerasing
+        sudo dnf install -y 'ffmpeg-libs'
         
         log_info "Installing additional GStreamer plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
         log_info "Installing Lame plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken lame lame-libs --exclude=lame-devel
         log_info "Update groups core and multimedia..."
-        sudo dnf update '@core' '@multimedia' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
+        sudo dnf update -y '@core' '@multimedia' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
     else
         log_warning "RPM Fusion repositories not available, skipping additional codecs"
     fi
