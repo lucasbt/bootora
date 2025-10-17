@@ -757,8 +757,7 @@ install_drawio() {
 
 	log_info "Searching for the latest release of $repo_owner/$repo_name..."
   	json=$(curl -s "https://api.github.com/repos/${repo_owner}/${repo_name}/releases/latest")
-	rpm_url=$(echo "$json" | jq -r \
-    	".assets[] | select(.name | test(\"linux.*${arch}.rpm\$\")) | .browser_download_url" | head -n1)
+	rpm_url=$(echo "$json" | jq -r '.assets[] | select(.name | test("drawio-x86_64.*\\.rpm$")) | .browser_download_url' | head -n1)
 
 	if [[ -z "$rpm_url" || "$rpm_url" == "null" ]]; then
     	log_warning "Error: RPM for architecture $arch not found in latest release."
