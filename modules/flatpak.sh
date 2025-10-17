@@ -138,6 +138,8 @@ configure_flatpak_settings() {
     # Set up Flatpak desktop integration
     setup_flatpak_desktop_integration
 
+    install_special_flatpak_apps
+
     log_success "Flatpak settings configured"
 }
 
@@ -167,9 +169,6 @@ configure_flatpak_themes() {
 # Setup Flatpak desktop integration
 setup_flatpak_desktop_integration() {
     log_info "Setting up Flatpak desktop integration..."
-
-    # Export Flatpak applications to desktop
-    flatpak export --export-path="$HOME/.local/share/applications" || true
 
     # Update desktop database
     if is_command_available "update-desktop-database"; then
