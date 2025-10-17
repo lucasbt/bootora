@@ -202,7 +202,7 @@ function request_sudo_password() {
 # Package management utilities
 is_package_installed() {
     local package="$1"
-    dnf list installed "$package" &> /dev/null
+    rpm -q "$package" &> /dev/null
 }
 
 is_flatpak_installed() {
