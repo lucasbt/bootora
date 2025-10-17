@@ -2,7 +2,6 @@
 # System utilities
 htop
 btop
-fastfetch
 tree
 rsync
 wget
@@ -71,7 +70,6 @@ bash-completion
 gnome-tweaks
 gnome-extensions-app
 exfatprogs
-gnome-terminal-nautilus
 inxi
 mediainfo
 NetworkManager-l2tp-gnome
