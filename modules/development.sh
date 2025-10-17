@@ -258,10 +258,10 @@ install_nodejs() {
     # Install global npm packages
     log_info "Installing global npm packages..."
     for package in "${npm_packages[@]}"; do
-        if superuser_do npm list -g "$package" &>/dev/null; then
+        if npm list -g "$package"; then
             log_info "$package already installed globally"
         else
-            if superuser_do npm install -g "$package" &>/dev/null; then
+            if npm install -g "$package"; then
                 log_success "Installed $package globally"
             else
                 log_warning "Failed to install $package"
