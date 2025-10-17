@@ -1,7 +1,6 @@
 # Flatpak Applications
 # Communication
 com.discordapp.Discord
-org.telegram.desktop
 org.localsend.localsend_app
 rest.insomnia.Insomnia
 
