@@ -62,7 +62,7 @@ install_multimedia_packages_from_list() {
         if is_package_installed "$package"; then
             installed_count=$((installed_count + 1))
         else
-            if superuser_do dnf install -y "$package" &>/dev/null; then
+            if superuser_do dnf install -y "$package"; then
                 installed_count=$((installed_count + 1))
             else
                 failed_count=$((failed_count + 1))
@@ -105,7 +105,7 @@ install_multimedia_codecs() {
         log_info "Installing additional codecs from RPM Fusion..."
 
         # Install multimedia group
-        if superuser_do dnf group install -y --best --allowerasing --skip-broken --with-optional Multimedia; then
+        if superuser_do dnf group install -y --best --allowerasing --skip-broken --with-optional multimedia; then
             log_success "Multimedia group installed"
         else
             log_warning "Failed to install Multimedia group"
@@ -124,7 +124,7 @@ install_multimedia_codecs() {
         )
 
         for codec in "${codec_packages[@]}"; do
-            install_dnf_package "$codec" "$codec" || true  # Don't fail if codec installation fails
+            install_dnf_package "$codec" "$codec"
         done
 
         log_info "Installing additional GStreamer plugins..."
@@ -132,7 +132,7 @@ install_multimedia_codecs() {
         log_info "Installing Lame plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken lame lame-libs --exclude=lame-devel
         log_info "Upgrading Multimedia Group..."
-        superuser_do dnf group upgrade -y --with-optional --best --allowerasing --skip-broken Multimedia
+        superuser_do dnf group upgrade -y --with-optional --best --allowerasing --skip-broken multimedia
     else
         log_warning "RPM Fusion repositories not available, skipping additional codecs"
     fi
