@@ -50,7 +50,7 @@ execute_packages_module() {
         if is_package_installed "$package"; then
             installed_count=$((installed_count + 1))
         else
-            if superuser_do dnf install -y "$package" &>/dev/null; then
+            if superuser_do dnf install -y "$package"; then
                 installed_count=$((installed_count + 1))
             else
                 failed_count=$((failed_count + 1))
