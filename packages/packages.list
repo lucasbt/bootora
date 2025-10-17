@@ -96,7 +96,6 @@ lsd
 hplip
 hplip-common
 hplip-libs
-eza
 google-chrome-stable
 lm_sensors
 timew
@@ -114,4 +113,3 @@ xournalpp
 util-linux-user
 httpie
 telegram-desktop
-opera-stable
