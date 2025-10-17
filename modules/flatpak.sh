@@ -115,7 +115,7 @@ install_flatpak_with_retry() {
     local retry_count=0
 
     while [ $retry_count -lt $max_retries ]; do
-        if flatpak install -y flathub "$package" &>/dev/null; then
+        if flatpak install -y flathub "$package"; then
             return 0
         fi
 
@@ -149,17 +149,17 @@ configure_flatpak_themes() {
     if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ]; then
         # Install GNOME themes for Flatpak
         if ! is_flatpak_installed "org.gtk.Gtk3theme.Adwaita-dark"; then
-            flatpak install -y flathub org.gtk.Gtk3theme.Adwaita-dark &>/dev/null || true
+            flatpak install -y flathub org.gtk.Gtk3theme.Adwaita-dark || true
         fi
 
         if ! is_flatpak_installed "org.freedesktop.Platform.gtk-theme.Adwaita-dark"; then
-            flatpak install -y flathub org.freedesktop.Platform.gtk-theme.Adwaita-dark &>/dev/null || true
+            flatpak install -y flathub org.freedesktop.Platform.gtk-theme.Adwaita-dark || true
         fi
     fi
 
     # Set theme permissions for better integration
-    flatpak override --user --filesystem=xdg-config/gtk-3.0:ro &>/dev/null || true
-    flatpak override --user --filesystem=xdg-config/gtk-4.0:ro &>/dev/null || true
+    flatpak override --user --filesystem=xdg-config/gtk-3.0:ro || true
+    flatpak override --user --filesystem=xdg-config/gtk-4.0:ro || true
 
     log_success "Flatpak themes configured"
 }
@@ -169,16 +169,16 @@ setup_flatpak_desktop_integration() {
     log_info "Setting up Flatpak desktop integration..."
 
     # Export Flatpak applications to desktop
-    flatpak export --export-path="$HOME/.local/share/applications" &>/dev/null || true
+    flatpak export --export-path="$HOME/.local/share/applications" || true
 
     # Update desktop database
     if is_command_available "update-desktop-database"; then
-        update-desktop-database "$HOME/.local/share/applications" &>/dev/null || true
+        update-desktop-database "$HOME/.local/share/applications" || true
     fi
 
     # Update icon cache
     if is_command_available "gtk-update-icon-cache"; then
-        gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" &>/dev/null || true
+        gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" || true
     fi
 
     log_success "Desktop integration configured"
@@ -190,7 +190,7 @@ install_special_flatpak_apps() {
 
     # Spotify with media keys support
     if install_flatpak_package "com.spotify.Client" "Spotify"; then
-        flatpak override --user --socket=session-bus com.spotify.Client &>/dev/null
-        flatpak override --user --socket=system-bus com.spotify.Client &>/dev/null
+        flatpak override --user --socket=session-bus com.spotify.Client 
+        flatpak override --user --socket=system-bus com.spotify.Client 
     fi
 }
