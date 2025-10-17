@@ -402,7 +402,7 @@ install_docker() {
     superuser_do dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine &>/dev/null || true
 
     # Add Docker repository
-    superuser_do dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    superuser_do dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 
     # Install Docker packages
     if superuser_do dnf install -y "${docker_packages[@]}"; then
@@ -445,7 +445,9 @@ install_container_tools() {
     install_dnf_package "kubernetes" "Kubernetes tools" || true
     install_dnf_package "helm" "Helm" || true
 
-    superuser_do dnf group install -y --skip-broken --with-optional --allowerasing Virtualization
+    superuser_do dnf group install -y --skip-broken --with-optional --allowerasing --skip-unavailable virtualization
+	superuser_do systemctl enable --now libvirtd
+	superuser_do usermod -aG libvirt $(whoami)
 }
 
 install_git_tools() {
@@ -619,7 +621,7 @@ install_awscli(){
 			log_info "Clean old packages, if exists..."
 			rm -rf "/tmp/aws"
 			log_info "Unzipping awscli file..."
-			unzip -u -o "$AWSCLI_ARCHIVE_NAME" -d "/tmp" | pv -l -s $(unzip -Z -1 $AWSCLI_ARCHIVE_NAME | wc -l) >/dev/null
+			unzip -u -o "$AWSCLI_ARCHIVE_NAME" -d "/tmp"
             superuser_do /tmp/aws/install
 			aws --version
 			log_success "Installation of AWS CLI complete."
@@ -740,10 +742,12 @@ EOF
 install_drawio() {
     log_info "Installing draw.io..."
 
-    local rpm_url="https://github.com/jgraph/drawio-desktop/releases/latest/download/draw.io-amd64.rpm"
-    local rpm_file="/tmp/drawio-latest.rpm"
+  	local repo_owner="jgraph"
+  	local repo_name="drawio-desktop"
+  	local arch="x86_64"
+  	local rpm_url rpm_file json
 
-    # Check if installed
+	# Check if installed
     if is_command_available "drawio"; then
         local current_version
         current_version=$(drawio --version 2>/dev/null || echo "unknown")
@@ -751,8 +755,19 @@ install_drawio() {
         return 0
     fi
 
+	log_info "Searching for the latest release of $repo_owner/$repo_name..."
+  	json=$(curl -s "https://api.github.com/repos/${repo_owner}/${repo_name}/releases/latest")
+	rpm_url=$(echo "$json" | jq -r \
+    	".assets[] | select(.name | test(\"linux.*${arch}.rpm\$\")) | .browser_download_url" | head -n1)
+
+	if [[ -z "$rpm_url" || "$rpm_url" == "null" ]]; then
+    	log_warning "Error: RPM for architecture $arch not found in latest release."
+    	return 1
+  	fi
+
     log_info "Downloading draw.io RPM..."
-    if curl -Lo "$rpm_file" "$rpm_url"; then
+	rpm_file=$(basename "$rpm_url")
+    if curl -L -o "$rpm_file" "$rpm_url"; then
         if superuser_do dnf install -y "$rpm_file"; then
             log_success "draw.io installed successfully"
             rm -f "$rpm_file"
