@@ -122,7 +122,7 @@ configure_zsh() {
     # Install Starship prompt
     if ! command -v starship &>/dev/null; then
         log_info "Installing Starship prompt..."
-        curl -sS https://starship.rs/install.sh | bash -s -- -y
+        curl -sS https://starship.rs/install.sh | sh
         log_success "Starship installed"
     else
         log_info "Starship already installed"
