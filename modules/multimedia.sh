@@ -104,8 +104,8 @@ install_multimedia_codecs() {
     if dnf repolist | grep -q "rpmfusion"; then
         log_info "Installing additional codecs from RPM Fusion..."
 
-        # Install multimedia group
-        if superuser_do dnf group install -y --best --allowerasing --skip-broken --with-optional multimedia; then
+        # Install multimedia group            
+        if sudo dnf group install multimedia -y --best --allowerasing --skip-broken --with-optional --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin; then
             log_success "Multimedia group installed"
         else
             log_warning "Failed to install Multimedia group"
@@ -113,26 +113,30 @@ install_multimedia_codecs() {
 
         # Install specific codec packages
         local codec_packages=(
-            "ffmpeg"
-            "ffmpeg-libs"
             "libavcodec-freeworld"
             "x264"
             "x265"
             "lame"
             "faac"
             "faad2"
+            "libva-intel-media-driver"
         )
 
         for codec in "${codec_packages[@]}"; do
             install_dnf_package "$codec" "$codec"
         done
-
+        
+        log_info "Installing ffmpeg..."
+        sudo dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing
+        sudo dnf install ffmpeg-full --allowerasing
+        sudo dnf install 'ffmpeg-libs'
+        
         log_info "Installing additional GStreamer plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
         log_info "Installing Lame plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken lame lame-libs --exclude=lame-devel
-        log_info "Upgrading Multimedia Group..."
-        superuser_do dnf group upgrade -y --with-optional --best --allowerasing --skip-broken multimedia
+        log_info "Update groups core and multimedia..."
+        sudo dnf update '@core' '@multimedia' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
     else
         log_warning "RPM Fusion repositories not available, skipping additional codecs"
     fi
