@@ -20,6 +20,8 @@ execute_configuration_module() {
     # Apply system tweaks
     apply_system_tweaks
 
+    apply_gnome_configs
+
     # Configure development environment
     configure_folders_development_environment
 
@@ -30,6 +32,53 @@ execute_configuration_module() {
 
     log_success "Configuration module completed successfully"
     return 0
+}
+
+apply_gnome_configs(){
+    log_info "Applying Gnome Hotkeys..."
+
+    # Alt+F4 is very cumbersome
+    gsettings set org.gnome.desktop.wm.keybindings close "['<Super>w']"
+    
+    # Make it easy to maximize like you can fill left/right
+    gsettings set org.gnome.desktop.wm.keybindings maximize "['<Super>Up']"
+
+    # Make it easy to resize undecorated windows
+    gsettings set org.gnome.desktop.wm.keybindings begin-resize "['<Super>BackSpace']"
+
+    # Full-screen with title/navigation bar
+    gsettings set org.gnome.desktop.wm.keybindings toggle-fullscreen "['<Shift>F11']"
+
+    # Use super for workspaces
+    gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Super>1']"
+    gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Super>2']"
+    gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Super>3']"
+    gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-4 "['<Super>4']"
+    gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-5 "['<Super>5']"
+    gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-6 "['<Super>6']"
+
+    # Reserve slots for custom keybindings
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom6/']"
+
+    # Set ulauncher to Super+Space
+    gsettings set org.gnome.desktop.wm.keybindings switch-input-source "@as []"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name 'Ulauncher'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command 'sh -c "pgrep -x ulauncher && { ulauncher-toggle || true; } || setsid -f ulauncher"'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding '<Super>space'
+
+    # Set flameshot (with the sh fix for starting under Wayland) on alternate print screen key
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ name 'Flameshot'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ command 'sh -c -- "flameshot gui"'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ binding '<Control>Print'
+
+    # Center new windows in the middle of the screen
+    gsettings set org.gnome.mutter center-new-windows true
+    
+    # Set Cascadia Mono as the default monospace font
+    gsettings set org.gnome.desktop.interface monospace-font-name 'CaskaydiaMono Nerd Font 10'
+
+    # Reveal week numbers in the Gnome calendar
+    gsettings set org.gnome.desktop.calendar show-weekdate true
 }
 
 # Configure Git settings
@@ -530,6 +579,8 @@ X-GNOME-Autostart-enabled=true'
     echo "$DESKTOP_ENTRY" > "$AUTOSTART_DIR/ulauncher.desktop"
     echo "$DESKTOP_ENTRY" > "$APPLICATIONS_DIR/ulauncher.desktop"
 
+    gtk-launch ulauncher.desktop >/dev/null 2>&1
+    sleep 2 # ensure enough time for ulauncher to set defaults
     log_success "Ulauncher configured (apps + autostart)"
 }
 
