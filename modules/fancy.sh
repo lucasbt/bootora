@@ -78,6 +78,7 @@ FONTS_URLS_LIST=(
 	https://www.omnibus-type.com/wp-content/uploads/Asap-Condensed.zip
 	https://www.omnibus-type.com/wp-content/uploads/Archivo.zip
 	https://www.omnibus-type.com/wp-content/uploads/Archivo-Narrow.zip
+	https://github.com/iaolo/iA-Fonts/archive/refs/heads/master.zip
 )
 
 ICONS_LIST=(
