@@ -315,7 +315,8 @@ EOF
 
     # Zsh: adiciona ao .zshrc se ainda não estiver
     if [ -f "$HOME/.zshrc" ]; then
-        local zsh_line="fpath=(\"$zsh_completion_dir\" \$fpath)"
+        local zsh_completion_dir=~/.zsh/completions
+        local zsh_line="fpath=($zsh_completion_dir \$fpath)"
         if ! grep -Fxq "$zsh_line" "$HOME/.zshrc"; then
             echo "" >> "$HOME/.zshrc"
             echo "# Bootora autocomplete" >> "$HOME/.zshrc"
