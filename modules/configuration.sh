@@ -79,6 +79,25 @@ apply_gnome_configs(){
 
     # Reveal week numbers in the Gnome calendar
     gsettings set org.gnome.desktop.calendar show-weekdate true
+
+    add_nodisplay_true
+}
+
+add_nodisplay_true() {
+    log_info "Set display false to gnome apps grid for some apps..."
+    for file in /usr/share/applications/htop.desktop /usr/share/applications/btop.desktop; do
+        if [ -f "$file" ]; then
+            if grep -q "^NoDisplay=" "$file"; then
+                # Já existe uma linha NoDisplay, vamos alterar seu valor para true
+                sudo sed -i 's/^NoDisplay=.*/NoDisplay=true/' "$file"
+            else
+                # Adiciona NoDisplay=true logo após a linha [Desktop Entry]
+                sudo sed -i '/^\[Desktop Entry\]/a NoDisplay=true' "$file"
+            fi
+        else
+            log_info "File not found: $file"
+        fi
+    done
 }
 
 # Configure Git settings
