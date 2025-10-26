@@ -7,7 +7,6 @@
 # Podman usually comes with Fedora, but let's make sure
 local podman_packages=(
     "podman"
-    "podman-docker"
     "podman-compose"
     "buildah"
     "skopeo"
