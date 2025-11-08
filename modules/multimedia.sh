@@ -14,8 +14,8 @@ execute_multimedia_module() {
     # Install multimedia codecs
     install_multimedia_codecs
 
-    # Configure multimedia settings
-    configure_multimedia_settings
+    # Set default applications
+    configure_default_multimedia_apps
 
     log_success "Multimedia module completed successfully"
     return 0
@@ -85,126 +85,29 @@ install_multimedia_packages_from_list() {
 install_multimedia_codecs() {
     log_info "Installing multimedia codecs..."
 
-    # Install GStreamer plugins
-    log_info "Installing GStreamer plugins..."
-    local gstreamer_plugins=(
-        "gstreamer1-plugins-base"
-        "gstreamer1-plugins-good"
-        "gstreamer1-plugins-bad-free"
-        "gstreamer1-plugins-ugly"
-        "gstreamer1-plugin-openh264"
-        "gstreamer1-libav"
-    )
-
-    for plugin in "${gstreamer_plugins[@]}"; do
-        install_dnf_package "$plugin" "$plugin"
-    done
-
     # Install additional codecs from RPM Fusion
     if dnf repolist | grep -q "rpmfusion"; then
         log_info "Installing additional codecs from RPM Fusion..."
 
         # Install multimedia group            
-        if sudo dnf group install multimedia -y --best --allowerasing --skip-broken --with-optional --exclude=PackageKit-gstreamer-plugin; then
+        if sudo dnf4 group install multimedia -y --best --allowerasing --skip-broken --with-optional --exclude=PackageKit-gstreamer-plugin; then
             log_success "Multimedia group installed"
         else
             log_warning "Failed to install Multimedia group"
         fi
-
-        # Install specific codec packages
-        local codec_packages=(
-            "libavcodec-freeworld"
-            "x264"
-            "x265"
-            "lame"
-            "faac"
-            "faad2"
-            "libva-intel-media-driver"
-        )
-
-        for codec in "${codec_packages[@]}"; do
-            install_dnf_package "$codec" "$codec"
-        done
         
         log_info "Installing ffmpeg..."
         sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
-        sudo dnf install -y 'ffmpeg-libs'
+        sudo dnf upgrade @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
         
-        log_info "Installing additional GStreamer plugins..."
-        superuser_do dnf install -y --best --allowerasing --skip-broken gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
         log_info "Installing Lame plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken lame lame-libs --exclude=lame-devel
         log_info "Update groups core and multimedia..."
         sudo dnf update -y '@core' '@multimedia' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
+        sudo dnf group install -y sound-and-video
     else
         log_warning "RPM Fusion repositories not available, skipping additional codecs"
     fi
-
-    # Install hardware acceleration drivers
-    install_hardware_acceleration_drivers
-}
-
-# Install hardware acceleration drivers
-install_hardware_acceleration_drivers() {
-    log_info "Installing hardware acceleration drivers..."
-
-    # VA-API drivers
-    local vaapi_drivers=(
-        "mesa-va-drivers"
-        "intel-media-driver"
-        "libva-intel-driver"
-    )
-
-    for driver in "${vaapi_drivers[@]}"; do
-        install_dnf_package "$driver" "$driver" || true
-    done
-
-    # VDPAU drivers
-    local vdpau_drivers=(
-        "mesa-vdpau-drivers"
-        "libvdpau-va-gl"
-    )
-
-    for driver in "${vdpau_drivers[@]}"; do
-        install_dnf_package "$driver" "$driver" || true
-    done
-
-    log_success "Hardware acceleration drivers installed"
-}
-
-# Configure multimedia settings
-configure_multimedia_settings() {
-    log_info "Configuring multimedia settings..."
-
-    # Configure PipeWire (if available)
-    if is_command_available "pipewire"; then
-        configure_pipewire
-    fi
-
-    # Set default applications
-    configure_default_multimedia_apps
-}
-
-# Configure PipeWire
-configure_pipewire() {
-    log_info "Configuring PipeWire..."
-
-    # Enable PipeWire services for user
-    if systemctl --user is-enabled pipewire.service &>/dev/null; then
-        log_info "PipeWire already enabled"
-    else
-        systemctl --user enable pipewire.service
-        systemctl --user enable pipewire-pulse.service
-        systemctl --user enable wireplumber.service
-        log_success "PipeWire services enabled"
-    fi
-
-    # Start PipeWire services
-    systemctl --user start pipewire.service || true
-    systemctl --user start pipewire-pulse.service || true
-    systemctl --user start wireplumber.service || true
-
-    log_success "PipeWire configured"
 }
 
 # Configure default multimedia applications
@@ -227,6 +130,8 @@ configure_default_multimedia_apps() {
         xdg-mime default org.gnome.Rhythmbox3.desktop audio/flac
         log_info "Rhythmbox set as default audio player"
     fi
+
+    sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
 
     log_success "Default multimedia applications configured"
 }

@@ -85,8 +85,6 @@ install_special_packages() {
     # Install Opera
     install_opera
 
-    install_simplenote
-
     # Install additional development tools
     install_additional_dev_tools
 
@@ -94,7 +92,7 @@ install_special_packages() {
     install_bitwarden_gui
     install_bitwarden_cli
 
-    install_ulauncher
+    #install_ulauncher
 }
 
 install_opera() {
@@ -110,7 +108,7 @@ install_opera() {
 
     # Adiciona repositório do Opera
     cat << 'EOF' | superuser_do tee /etc/yum.repos.d/opera.repo > /dev/null
-[opera]
+[Opera]
 name=Opera packages
 type=rpm-md
 baseurl=https://rpm.opera.com/rpm
@@ -139,7 +137,7 @@ install_chrome() {
 
     # Add Google repository
     cat << 'EOF' | superuser_do tee /etc/yum.repos.d/google-chrome.repo > /dev/null
-[google-chrome]
+[Google-Chrome]
 name=Google Chrome
 baseurl=http://dl.google.com/linux/chrome/rpm/stable/$basearch
 enabled=1
@@ -161,7 +159,6 @@ install_additional_dev_tools() {
 
     local dev_tools=(
         "vim-enhanced"
-        "neovim"
         "meld"
         "autoconf"
         "automake"
@@ -325,34 +322,4 @@ EOF
 EOF
 
     log_success "Ulauncher installed and configured successfully"
-}
-
-install_simplenote(){
-    log_info "Installing Simplenote..."
-    GITHUB_REPO="Automattic/simplenote-electron"
-    TMP_DIR="/tmp/simplenote_install"
-    RPM_FILE="$TMP_DIR/simplenote.rpm"
-
-    # Cria diretório temporário
-    mkdir -p "$TMP_DIR"
-
-    # Busca a URL do pacote .rpm mais recente na API do GitHub
-    log_info "Getting the latest version of Simplenote..."
-    RPM_URL=$(curl -s "https://api.github.com/repos/$GITHUB_REPO/releases/latest" \
-    | jq -r '.assets[] | select(.name | endswith(".rpm")) | .browser_download_url')
-
-    if [ -z "$RPM_URL" ]; then
-        log_failed "Unable to find .rpm package for Simplenote."
-        return 1
-    fi
-
-    # Baixa o pacote
-    log_info "Downloading the Simplenote package..."
-    curl -L -o "$RPM_FILE" "$RPM_URL"
-
-    # Instala o pacote
-    log_info "Installing Simplenote..."
-    dnf install -y "$RPM_FILE"
-
-    log_success "Simplenote installed successfully."
 }
