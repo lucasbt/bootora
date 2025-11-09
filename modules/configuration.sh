@@ -60,16 +60,20 @@ apply_gnome_configs(){
     # Reserve slots for custom keybindings
     gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom6/']"
 
-    # Set ulauncher to Super+Space
-    gsettings set org.gnome.desktop.wm.keybindings switch-input-source "@as []"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name 'Ulauncher'
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command 'sh -c "pgrep -x ulauncher && { ulauncher-toggle || true; } || setsid -f ulauncher"'
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding '<Super>space'
-
     # Set flameshot (with the sh fix for starting under Wayland) on alternate print screen key
     gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ name 'Flameshot'
     gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ command 'sh -c -- "flameshot gui"'
     gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ binding '<Control>Print'
+
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/']"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ name 'taskmanager'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ command 'gnome-system-monitor'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ binding '<Control><Shift>Escape'
+
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/']"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/ name 'terminal'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/ command 'ptyxis'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/ binding '<Control><Alt>t'
 
     # Center new windows in the middle of the screen
     gsettings set org.gnome.mutter center-new-windows true
@@ -79,6 +83,27 @@ apply_gnome_configs(){
 
     # Reveal week numbers in the Gnome calendar
     gsettings set org.gnome.desktop.calendar show-weekdate true
+
+    gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
+
+    gsettings set org.gnome.desktop.peripherals.keyboard numlock-state true
+
+    gsettings set org.gnome.SessionManager logout-prompt false
+
+    gsettings set org.gnome.desktop.sound allow-volume-above-100-percent true
+
+    gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"
+
+    gsettings set org.gnome.nautilus.preferences show-create-link 'true'
+    gsettings set org.gnome.nautilus.preferences show-delete-permanently 'true'
+    gsettings set org.gtk.Settings.FileChooser sort-directories-first 'true'
+    gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
+
+    gsettings set org.gnome.TextEditor show-line-numbers 'true'
+    gsettings set org.gnome.TextEditor spellcheck 'false'
+
+    gsettings set org.gnome.shell.keybindings show-screenshot-ui "['<Shift><Super>s']"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>e']"
 
     add_nodisplay_true
 }
@@ -204,7 +229,7 @@ configure_zsh() {
     # Ask to set Zsh as default shell
     if [ "$SHELL" != "$(which zsh)" ]; then
         if ask_yes_no "Set Zsh as your default shell?" "n"; then
-            chsh -s "$(which zsh)"
+            sudo chsh -s $(which zsh) "$USERNAME"
             log_success "Zsh set as default shell (effective after logout/login)"
         fi
     fi
@@ -376,6 +401,17 @@ configure_automatic_updates() {
 apply_system_tweaks() {
     log_info "Applying system tweaks..."
 
+    # General tweaks
+    sudo systemctl disable NetworkManager-wait-online.service
+    sudo rm -rf /etc/yum.repos.d/{_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo,rpmfusion-nonfree-nvidia-driver.repo,rpmfusion-nonfree-steam.repo,google-chrome.repo}
+    sudo rm -f /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
+    sudo rm -rf /etc/xdg/autostart/org.gnome.Software.desktop
+
+    sudo fwupdmgr refresh --force
+    sudo fwupdmgr get-devices
+    sudo fwupdmgr get-updates
+    sudo fwupdmgr update
+
     # Improve swappiness
     apply_swappiness_tweak
 
@@ -441,6 +477,7 @@ configure_folders_development_environment() {
     ensure_directory "$HOME/Develop/tools"
     ensure_directory "$HOME/Documents/projects"
     ensure_directory "$HOME/Documents/resources"
+    ensure_directory "$HOME/Documents/resources/brain"
     ensure_directory "$HOME/Documents/resources/pictures"
     ensure_directory "$HOME/Documents/resources/pictures/wallpapers"
     ensure_directory "$HOME/Documents/resources/music"
@@ -451,6 +488,9 @@ configure_folders_development_environment() {
 
     cp -r "$HOME/Pictures/"* "$HOME/Documents/resources/pictures/" 2>/dev/null || true
     rm -rf "$HOME/Pictures" && ln -s "$HOME/Documents/resources/pictures" "$HOME/Pictures"
+
+    # add 'new empty file' in the context menu
+	touch ~/Templates/Empty\ File
 
     log_success "Development and folders environment configured"
 }
@@ -496,15 +536,16 @@ setup_directory_bookmarks() {
     if [ ! -f "$bookmarks_file" ]; then
         cat > "$bookmarks_file" << EOF
 # Directory bookmarks
-home=$HOME
-projects=$HOME/Documents/projects
+h=$HOME
+p=$HOME/Documents/projects
 dev=$HOME/Develop
-downloads=$HOME/Downloads
-documents=$HOME/Documents
-config=$HOME/.config
-local=$HOME/.local
-resources=$HOME/Documents/resources
-archive=$HOME/Documents/archives
+dw=$HOME/Downloads
+d=$HOME/Documents
+c=$HOME/.config
+l=$HOME/.local
+r=$HOME/Documents/resources
+b=$HOME/Documents/resources/brain
+a=$HOME/Documents/archives
 EOF
 
         # Add bookmark functions to shell functions
@@ -549,57 +590,69 @@ function configure_environment_apps(){
     configure_ulauncher
 }
 
-# Configure Ulauncher
+# Automatically fix Ulauncher hotkey issue on Wayland (GNOME only)
 configure_ulauncher() {
     log_info "Configuring Ulauncher..."
 
     # Instala o pacote caso não exista
     install_dnf_package "ulauncher" "Ulauncher" || true
 
-    # Diretórios de configuração
-    CONFIG_DIR="$HOME/.config/ulauncher"
-    AUTOSTART_DIR="$HOME/.config/autostart"
-    APPLICATIONS_DIR="$HOME/.local/share/applications"
+    # 1. Check if running under Wayland
+    if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
+        log_warning "You are not running a Wayland session (current: $XDG_SESSION_TYPE)"
+        log_warning "This fix is only needed when running Wayland."
+        return 1
+    fi
 
-    mkdir -p "$CONFIG_DIR"
-    mkdir -p "$AUTOSTART_DIR"
-    mkdir -p "$APPLICATIONS_DIR"
+    # 2. Install wmctrl
+    log_info "Installing wmctrl..."
+    if command -v dnf >/dev/null 2>&1; then
+        sudo dnf install -y wmctrl
+    else
+        log_failed "Unsupported package manager. Please install manually: sudo dnf/apt install wmctrl"
+        return 1
+    fi
 
-    # Cria ulauncher.json
-    cat > "$CONFIG_DIR/settings.json" << 'EOF'
-{
-  "blacklisted-desktop-dirs": "/usr/share/locale:/usr/share/app-install:/usr/share/kservices5:/usr/share/fk5:/usr/share/kservicetypes5:/usr/share/applications/screensavers:/usr/share/kde4:/usr/share/mimelnk",
-  "clear-previous-query": true,
-  "disable-desktop-filters": false,
-  "grab-mouse-pointer": false,
-  "hotkey-show-app": "null",
-  "render-on-screen": "mouse-pointer-monitor",
-  "show-indicator-icon": false,
-  "show-recent-apps": "0",
-  "terminal-command": "",
-  "theme-name": "dark"
+    # 3. Define hotkey details
+    local name="Ulauncher toggle"
+    local cmd="ulauncher-toggle"
+    local binding="<Super>Space"   # change this key if you want another shortcut
+
+    # 4. Create GNOME custom keybinding via gsettings
+    echo "⚙️  Creating GNOME shortcut for '$cmd' with key $binding"
+
+    # Path for the new keybinding
+    local new_path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ulauncher-toggle/"
+
+    # Get current list of custom keybindings
+    local current_shortcuts
+    current_shortcuts=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
+
+    # Normalize if empty
+    if [ "$current_shortcuts" = "@as []" ]; then
+        current_shortcuts="[]"
+    fi
+
+    # Remove extra spaces
+    current_shortcuts=$(echo "$current_shortcuts" | tr -d ' ')
+
+    # 5. Add the new keybinding path if not already present
+    if [[ "$current_shortcuts" != *"$new_path"* ]]; then
+        if [ "$current_shortcuts" = "[]" ]; then
+            new_shortcuts="['$new_path']"
+        else
+            # Remove closing bracket and safely append the new path
+            new_shortcuts="${current_shortcuts%]*}, '$new_path']"
+        fi
+        echo "🧩 Updating custom shortcuts list..."
+        gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$new_shortcuts"
+    fi
+
+    # 6. Set the name, command, and keybinding
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$new_path" name "$name"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$new_path" command "$cmd"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$new_path" binding "$binding"
+
+    echo "Ulauncher Keybinding: $binding"
+     log_success "Ulauncher configured"
 }
-EOF
-
-    # Conteúdo do .desktop
-    DESKTOP_ENTRY='[Desktop Entry]
-Name=Ulauncher
-Comment=Application launcher for Linux
-GenericName=Launcher
-Categories=GNOME;GTK;Utility;
-TryExec=/usr/bin/ulauncher
-Exec=env GDK_BACKEND=wayland /usr/bin/ulauncher --hide-window
-Icon=ulauncher
-Terminal=false
-Type=Application
-X-GNOME-Autostart-enabled=true'
-
-    # Cria .desktop em ambos os locais
-    echo "$DESKTOP_ENTRY" > "$AUTOSTART_DIR/ulauncher.desktop"
-    echo "$DESKTOP_ENTRY" > "$APPLICATIONS_DIR/ulauncher.desktop"
-
-    gtk-launch ulauncher.desktop >/dev/null 2>&1
-    sleep 2 # ensure enough time for ulauncher to set defaults
-    log_success "Ulauncher configured (apps + autostart)"
-}
-

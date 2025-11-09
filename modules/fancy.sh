@@ -136,6 +136,9 @@ function install_dnf_fonts(){
 		log_warning "The list of DNF fonts is empty. Moving on..."
 	fi
 
+	log_info "Installing Microsoft Fonts from URL..."
+	superuser_do dnf install --skip-broken https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm -y
+
     log_info "Updating font cache..."
 	fc-cache -f
 	log_success "Preferred DNF fonts installation complete."

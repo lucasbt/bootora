@@ -1,6 +1,6 @@
 # Flatpak Applications
 # Communication
-com.discordapp.Discord
+#com.discordapp.Discord
 org.localsend.localsend_app
 rest.insomnia.Insomnia
 
@@ -8,6 +8,7 @@ rest.insomnia.Insomnia
 io.bassi.Amberol
 com.spotify.Client
 org.nickvision.tubeconverter
+com.rafaelmardojai.Blanket
 
 # Productivity
 md.obsidian.Obsidian
@@ -16,3 +17,5 @@ org.gnome.gitlab.somas.Apostrophe
 
 # System Tools
 com.mattjakeman.ExtensionManager
+it.mijorus.gearlever
+com.github.tchx84.Flatseal

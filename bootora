@@ -311,6 +311,9 @@ self_update() {
 clean_cache() {
     log_header "Cleaning Bootora Cache"
 
+    sudo dnf autoremove -y
+    sudo dnf clean all
+
     if [ -d "$BOOTORA_CACHE" ]; then
         rm -rf "$BOOTORA_CACHE"/*
         log_success "Cache cleaned"

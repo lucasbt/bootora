@@ -244,7 +244,7 @@ install_flatpak_package() {
     fi
 
     log_info "Installing $description..."
-    if flatpak install -y flathub "$package"; then
+    if flatpak install --or-update --assumeyes flathub "$package"; then
         log_success "$description installed successfully"
         return 0
     else

@@ -237,7 +237,8 @@ install_nodejs() {
     # Ensure NVM is loaded in this session
     export NVM_DIR="$HOME/.nvm"
     if is_command_available "nvm"; then
-        source "$NVM_DIR/nvm.sh"
+            # Load NVM
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     else
         log_failed "NVM is not installed or not found."
         return 1

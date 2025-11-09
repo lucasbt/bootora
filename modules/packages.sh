@@ -85,6 +85,9 @@ install_special_packages() {
     # Install Opera
     install_opera
 
+    # Install Brave
+    install_brave
+
     # Install additional development tools
     install_additional_dev_tools
 
@@ -92,7 +95,22 @@ install_special_packages() {
     install_bitwarden_gui
     install_bitwarden_cli
 
-    #install_ulauncher
+    install_onlyoffice
+}
+
+install_brave() {
+    if is_command_available "brave-browser"; then
+        log_info "Brave already installed"
+        return 0
+    fi
+
+    log_info "Installing Brave Browser..."
+    superuser_do dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+    if superuser_do dnf install brave-browser -y; then
+        log_success "Brave Browser installed"
+    else
+        log_failed "Failed to install Brave Browser"
+    fi
 }
 
 install_opera() {
@@ -268,58 +286,15 @@ install_bitwarden_cli() {
     rm -rf "$temp_dir"
 }
 
-install_ulauncher() {
-    log_info "Installing Ulauncher..."
+install_onlyoffice() {
+    log_info "Installing Only Office..."
 
-    local desktop_file="$HOME/.config/autostart/ulauncher.desktop"
-    local config_file="$HOME/.config/ulauncher/settings.json"
-    local exec_path="/usr/bin/ulauncher"
-
-    # Verifica se o Ulauncher está instalado
-    if ! command -v ulauncher >/dev/null 2>&1; then
-        log_info "Ulauncher not found, installing..."
-        superuser_do dnf install -y ulauncher
+    if superuser_do dnf install -y https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors.x86_64.rpm; then
+        log_success "Only Office installed successfully"
     else
-        log_info "Ulauncher is already installed"
+        log_failed "Failed to download Only Office"
+        return 1
     fi
 
-    # Cria o atalho .desktop
-    log_info "Creating autostart desktop entry..."
-    mkdir -p "$(dirname "$desktop_file")"
-    cat > "$desktop_file" <<EOF
-[Desktop Entry]
-Name=Ulauncher
-Comment=Application launcher for Linux
-GenericName=Launcher
-Categories=GNOME;GTK;Utility;
-TryExec=$exec_path
-Exec=env GDK_BACKEND=wayland $exec_path --hide-window
-Icon=ulauncher
-Terminal=false
-Type=Application
-X-GNOME-Autostart-enabled=true
-EOF
-
-    chmod +x "$desktop_file"
-    log_info "Desktop entry created at $desktop_file"
-
-    # Cria o arquivo de configuração JSON
-    log_info "Creating Ulauncher config file..."
-    mkdir -p "$(dirname "$config_file")"
-    cat > "$config_file" <<EOF
-{
-  "blacklisted-desktop-dirs": "/usr/share/locale:/usr/share/app-install:/usr/share/kservices5:/usr/share/fk5:/usr/share/kservicetypes5:/usr/share/applications/screensavers:/usr/share/kde4:/usr/share/mimelnk",
-  "clear-previous-query": true,
-  "disable-desktop-filters": false,
-  "grab-mouse-pointer": false,
-  "hotkey-show-app": "null",
-  "render-on-screen": "mouse-pointer-monitor",
-  "show-indicator-icon": false,
-  "show-recent-apps": "0",
-  "terminal-command": "",
-  "theme-name": "dark"
-}
-EOF
-
-    log_success "Ulauncher installed and configured successfully"
+    
 }

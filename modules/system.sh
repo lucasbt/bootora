@@ -14,6 +14,10 @@ system_update() {
         return 1
     fi
 
+    superuser_do dnf -y upgrade --refresh
+    superuser_do dnf group upgrade core
+    superuser_do dnf4 group install core
+
     # Install essential dependencies
     log_info "Installing essential dependencies..."
     local essential_packages=(
@@ -90,6 +94,8 @@ configure_repositories() {
         log_info "Flathub already configured"
     fi
 
+    superuser_do dnf install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+
     return 0
 }
 
@@ -145,9 +151,8 @@ optimize_dnf() {
 execute_system_module() {
     log_subheader "System Update & Configuration"
 
-    # Execute each component
-    if ! system_update; then
-        log_error "System update failed"
+    if ! optimize_dnf; then
+        log_error "DNF optimization failed"
         return 1
     fi
 
@@ -156,8 +161,9 @@ execute_system_module() {
         return 1
     fi
 
-    if ! optimize_dnf; then
-        log_error "DNF optimization failed"
+    # Execute each component
+    if ! system_update; then
+        log_error "System update failed"
         return 1
     fi
 

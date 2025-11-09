@@ -105,6 +105,7 @@ install_multimedia_codecs() {
         log_info "Update groups core and multimedia..."
         sudo dnf update -y '@core' '@multimedia' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
         sudo dnf group install -y sound-and-video
+        sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
     else
         log_warning "RPM Fusion repositories not available, skipping additional codecs"
     fi
