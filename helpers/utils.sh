@@ -491,28 +491,47 @@ restaurar_gnome_config() {
     log_info "Original screen lock and sleep settings restored."
 }
 
-# Função de cleanup seguro
-cleanup() {
-    restaurar_gnome_config
-    cleanup_temp_files
-}
-
 # Initialize bootora environment
 init_bootora_env() {
+    # --- Configura modo seguro de execução ---
+    # -e: sai no primeiro erro
+    # -u: erro em variável não definida
+    # -o pipefail: falha se qualquer comando do pipe falhar
+    # -E: garante que trap ERR seja propagado para funções e subshells
+    set -eEuo pipefail
+
     check_sudo
     ensure_directory "$BOOTORA_CACHE"
     ensure_directory "$BOOTORA_CONFIG"
     set_error_trap
 
-    # Create temp directory
+    # Cria diretório temporário
     export TEMP_DIR=$(mktemp -d)
 
-    # Trap para saída normal (EXIT)
-    trap 'cleanup' EXIT
+    # --- Função de cleanup segura ---
+    bootora_cleanup() {
+        # Desativa trap temporariamente para evitar loop
+        trap - EXIT SIGINT SIGTERM ERR
 
-    # Trap para Ctrl+C / SIGTERM — força saída imediata
-    trap 'log_warning "Execution interrupted! Cleaning up..."; cleanup; exit 1' SIGINT SIGTERM
+        log_info "Performing cleanup..."
 
+        # Restaura GNOME apenas se o arquivo existir
+        if [ -f "$GNOME_STATE_FILE" ]; then
+            restaurar_gnome_config
+        fi
+
+        # Remove arquivos temporários
+        cleanup_temp_files
+    }
+
+    # --- Traps ---
+    # Saída normal ou erro: cleanup
+    trap 'bootora_cleanup' EXIT
+
+    # Interrupção (Ctrl+C, SIGTERM): cleanup e sai imediatamente
+    trap 'log_warning "Execution interrupted! Exiting immediately."; bootora_cleanup; exit 1' SIGINT SIGTERM
+
+    # Inibe bloqueio de tela temporariamente
     inhibit_blockage_gnome
 
     log_info "Bootora environment initialized"
