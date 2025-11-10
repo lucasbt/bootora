@@ -491,6 +491,12 @@ restaurar_gnome_config() {
     log_info "Original screen lock and sleep settings restored."
 }
 
+# Função de cleanup seguro
+cleanup() {
+    restaurar_gnome_config
+    cleanup_temp_files
+}
+
 # Initialize bootora environment
 init_bootora_env() {
     check_sudo
@@ -500,7 +506,12 @@ init_bootora_env() {
 
     # Create temp directory
     export TEMP_DIR=$(mktemp -d)
-    trap 'restaurar_gnome_config; cleanup_temp_files' EXIT SIGINT SIGTERM
+
+    # Trap para saída normal (EXIT)
+    trap 'cleanup' EXIT
+
+    # Trap para Ctrl+C / SIGTERM — força saída imediata
+    trap 'log_warning "Execution interrupted! Cleaning up..."; cleanup; exit 1' SIGINT SIGTERM
 
     inhibit_blockage_gnome
 
