@@ -111,7 +111,7 @@ wl-clipboard
 xournalpp
 util-linux-user
 httpie
-telegram-desktop
+#telegram-desktop
 flatseal
 file-roller
 dconf-editor

@@ -3,6 +3,7 @@
 #com.discordapp.Discord
 org.localsend.localsend_app
 rest.insomnia.Insomnia
+org.telegram.desktop
 
 # Multimedia
 io.bassi.Amberol
@@ -14,8 +15,11 @@ com.rafaelmardojai.Blanket
 md.obsidian.Obsidian
 io.github.alainm23.planify
 org.gnome.gitlab.somas.Apostrophe
+org.onlyoffice.desktopeditors
+be.alexandervanhee.gradia
 
 # System Tools
 com.mattjakeman.ExtensionManager
 it.mijorus.gearlever
 com.github.tchx84.Flatseal
+io.github.flattool.Warehouse
