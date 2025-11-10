@@ -500,7 +500,7 @@ init_bootora_env() {
 
     # Create temp directory
     export TEMP_DIR=$(mktemp -d)
-    trap 'restaurar_gnome_config; cleanup_temp_files' EXIT SIGINT
+    trap 'restaurar_gnome_config; cleanup_temp_files; exit 1' EXIT SIGINT SIGTERM
 
     inhibit_blockage_gnome
 
