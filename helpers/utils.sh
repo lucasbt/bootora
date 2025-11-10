@@ -56,8 +56,8 @@ log_header() {
 
     local text="$1"
 
-    # Detecta largura do terminal ou usa 80 como padrão
-    local width
+    # Detecta largura do terminal ou usa 60 como padrão
+    local width=60
     #width=$(tput cols 2>/dev/null)
     [[ -z "$width" || "$width" -lt 20 ]] && width=60
 
