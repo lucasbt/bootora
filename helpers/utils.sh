@@ -32,7 +32,7 @@ readonly MAX_SUDO_ATTEMPTS=1
 
 # Logging functions
 log_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 log_warning() {
@@ -487,6 +487,7 @@ restaurar_gnome_config() {
         log_success "Bloqueio de tela restaurado para $OLD_LOCK_ENABLED" || \
         log_warning "Falha ao restaurar bloqueio de tela"
     rm -f "$GNOME_STATE_FILE" 2>/dev/null || true
+    log_info "Configurações originais de bloqueio de tela e suspensão restauradas com sucesso."
 }
 
 # Initialize bootora environment
