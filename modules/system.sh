@@ -74,10 +74,16 @@ configure_repositories() {
             return 1
         fi
     else
-        log_info "RPM Fusion Non-Free already enabled"
+        log_info "Installing RPM Fusion Non-Free already enabled"
     fi
 
-    superuser_do dnf install -y rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted > /dev/null
+    log_info "Installing RPM Tainted repos..."
+    if superuser_do dnf install -y rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted; then
+        log_success "RPM Tainted repositories enabled"
+    else
+        log_warning "Failed to enable RPM Tainted repositories"
+        return 1
+    fi
 
     # Configure Flathub
     log_info "Configuring Flathub repository..."
