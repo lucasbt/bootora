@@ -9,6 +9,7 @@ readonly BOOTORA_VERSION="1.0.0"
 readonly BOOTORA_HOME="$HOME/.local/share/bootora"
 readonly BOOTORA_CACHE="$HOME/.cache/bootora"
 readonly BOOTORA_CONFIG="$HOME/.config/bootora"
+readonly GNOME_STATE_FILE="$BOOTORA_CACHE/gnome_state.conf"
 
 # Colors
 readonly RED="\033[1;91m"        # Red
@@ -444,7 +445,6 @@ version_ge() {
 # Função: inibe temporariamente bloqueio de tela e suspensão (GNOME)
 # ============================================
 inhibit_blockage_gnome() {
-    GNOME_STATE_FILE="$BOOTORA_CACHE/gnome_state.conf"
 
     # --- Se houver estado pendente, não mexe e avisa ---
     if [ -f "$GNOME_STATE_FILE" ]; then
@@ -480,6 +480,7 @@ inhibit_blockage_gnome() {
 # Função interna de restauração
 restaurar_gnome_config() {
     log_info "Restoring original screen lock and sleep settings..."
+    source $GNOME_STATE_FILE
     gsettings set org.gnome.desktop.session idle-delay "$OLD_IDLE_DELAY" 2>/dev/null && \
         log_success "Inactivity time restored to $OLD_IDLE_DELAY" || \
         log_warning "Failed to restore idle-delay"
