@@ -348,11 +348,13 @@ main() {
             create_lock
             trap remove_lock EXIT
             full_install
+            bootora_cleanup
             ;;
         "update")
             create_lock
             trap remove_lock EXIT
             update_system
+            bootora_cleanup
             ;;
         "module")
             if [ -z "${2:-}" ]; then
@@ -397,7 +399,7 @@ main() {
             exit 1
             ;;
     esac
+    bootora_cleanup
 }
 
 main "$@"
-bootora_cleanup

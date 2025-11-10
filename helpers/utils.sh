@@ -494,6 +494,22 @@ restaurar_gnome_config() {
     log_info "Original screen lock and sleep settings restored."
 }
 
+# --- Função de cleanup segura ---
+bootora_cleanup() {
+    # Desativa trap temporariamente para evitar loop
+    trap - EXIT SIGINT SIGTERM ERR
+
+    log_info "Performing cleanup..."
+
+    # Restaura GNOME apenas se o arquivo existir
+    if [ -f "$GNOME_STATE_FILE" ]; then
+        restaurar_gnome_config
+    fi
+
+    # Remove arquivos temporários
+    cleanup_temp_files
+}
+
 # Initialize bootora environment
 init_bootora_env() {
     # --- Configura modo seguro de execução ---
@@ -509,22 +525,6 @@ init_bootora_env() {
 
     # Cria diretório temporário
     export TEMP_DIR=$(mktemp -d)
-
-    # --- Função de cleanup segura ---
-    bootora_cleanup() {
-        # Desativa trap temporariamente para evitar loop
-        trap - EXIT SIGINT SIGTERM ERR
-
-        log_info "Performing cleanup..."
-
-        # Restaura GNOME apenas se o arquivo existir
-        if [ -f "$GNOME_STATE_FILE" ]; then
-            restaurar_gnome_config
-        fi
-
-        # Remove arquivos temporários
-        cleanup_temp_files
-    }
 
     # --- Traps ---
     # Saída normal ou erro: cleanup
