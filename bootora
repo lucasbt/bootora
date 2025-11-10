@@ -239,6 +239,7 @@ full_install() {
         log_header "Installation Complete!"
         log_success "All modules installed successfully"
         log_info "Please reboot your system for all changes to take effect"
+        exit 0
     else
         log_header "Installation Completed with Issues"
         log_warning "The following modules failed:"
@@ -246,6 +247,7 @@ full_install() {
             log_failed "  - $module (${MODULES[$module]})"
         done
         log_info "You can retry failed modules with: bootora module <name>"
+        exit 1
     fi
 }
 
