@@ -36,19 +36,19 @@ log_info() {
 }
 
 log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}[WARNING] $1${NC}"
 }
 
 log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 log_success() {
-    echo -e "${GREEN}[${CHECKMARK}]${NC} $1"
+    echo -e "${GREEN}[${CHECKMARK}] $1${NC}"
 }
 
 log_failed() {
-    echo -e "${RED}[${CROSS}]${NC} $1"
+    echo -e "${RED}[${CROSS}] $1${NC}"
 }
 
 log_header() {
@@ -499,7 +499,7 @@ init_bootora_env() {
 
     # Create temp directory
     export TEMP_DIR=$(mktemp -d)
-    trap 'restaurar_gnome_config; cleanup_temp_files' EXIT
+    trap 'restaurar_gnome_config; cleanup_temp_files' EXIT SIGINT
 
     inhibit_blockage_gnome
 
