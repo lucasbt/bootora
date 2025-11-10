@@ -397,8 +397,7 @@ main() {
             exit 1
             ;;
     esac
-    exit 0
 }
 
 main "$@"
-exit 0
+bootora_cleanup
