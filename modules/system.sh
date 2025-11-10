@@ -15,8 +15,8 @@ system_update() {
     fi
 
     superuser_do dnf -y upgrade --refresh
-    superuser_do dnf group upgrade core
-    superuser_do dnf4 group install core
+    superuser_do dnf group upgrade core -y
+    superuser_do dnf4 group install core -y
 
     # Install essential dependencies
     log_info "Installing essential dependencies..."
@@ -77,7 +77,7 @@ configure_repositories() {
         log_info "RPM Fusion Non-Free already enabled"
     fi
 
-    superuser_do dnf install -y rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted
+    superuser_do dnf install -y rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted > /dev/null
 
     # Configure Flathub
     log_info "Configuring Flathub repository..."
@@ -94,8 +94,19 @@ configure_repositories() {
         log_info "Flathub already configured"
     fi
 
-    superuser_do dnf install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+    # Enable Terra
+    if ! dnf repolist | grep -q "Terra"; then
+        if superuser_do dnf install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release; then
+            log_success "Terra repository enabled"
+        else
+            log_warning "Failed to enable Terra repository"
+            return 1
+        fi
+    else
+        log_info "Terra already enabled"
+    fi
 
+    
     return 0
 }
 
