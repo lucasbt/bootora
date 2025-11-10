@@ -459,11 +459,11 @@ inhibit_blockage_gnome() {
         OLD_IDLE_DELAY=$(gsettings get org.gnome.desktop.session idle-delay 2>/dev/null || echo "300")
         OLD_LOCK_ENABLED=$(gsettings get org.gnome.desktop.screensaver lock-enabled 2>/dev/null || echo "true")
 
-        # Salva no cache para restauração futura
-        {
-            echo "OLD_IDLE_DELAY=$OLD_IDLE_DELAY"
-            echo "OLD_LOCK_ENABLED=$OLD_LOCK_ENABLED"
-        } > "$GNOME_STATE_FILE"
+    # Salva no cache para restauração futura
+    {
+        echo "OLD_IDLE_DELAY=\"$OLD_IDLE_DELAY\""
+        echo "OLD_LOCK_ENABLED=\"$OLD_LOCK_ENABLED\""
+    } > "$GNOME_STATE_FILE"
 
         # Desativa bloqueio e suspensão temporariamente
         gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null && \
