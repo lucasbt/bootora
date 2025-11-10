@@ -498,10 +498,9 @@ restaurar_gnome_config() {
 init_bootora_env() {
     # --- Configura modo seguro de execução ---
     # -e: sai no primeiro erro
-    # -u: erro em variável não definida
     # -o pipefail: falha se qualquer comando do pipe falhar
     # -E: garante que trap ERR seja propagado para funções e subshells
-    set -eEuo pipefail
+    set -eEo pipefail
 
     check_sudo
     ensure_directory "$BOOTORA_CACHE"

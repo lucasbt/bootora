@@ -98,7 +98,7 @@ install_multimedia_codecs() {
         
         log_info "Installing ffmpeg..."
         sudo dnf swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
-        sudo dnf upgrade @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+        sudo dnf upgrade @multimedia -y --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
         
         log_info "Installing Lame plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken lame lame-libs --exclude=lame-devel
