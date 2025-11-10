@@ -239,7 +239,7 @@ full_install() {
         log_header "Installation Complete!"
         log_success "All modules installed successfully"
         log_info "Please reboot your system for all changes to take effect"
-        exit 0
+        bootora_cleanup
     else
         log_header "Installation Completed with Issues"
         log_warning "The following modules failed:"
@@ -399,7 +399,6 @@ main() {
             exit 1
             ;;
     esac
-    bootora_cleanup
 }
 
 main "$@"
