@@ -408,7 +408,7 @@ install_docker() {
         mkdir -p /home/"$USER"/.docker
         # Add user to docker group
         if [ "$EUID" -ne 0 ]; then
-			newgrp docker
+			superuser_do newgrp docker
         	superuser_do groupadd -f docker
             superuser_do gpasswd -a ${USER} docker
             superuser_do usermod -aG docker "$USER"
