@@ -221,6 +221,16 @@ configure_zsh() {
         log_info "Starship already installed"
     fi
 
+    STARSHIP_CMD='eval "$(starship init zsh)"'
+    # Verifica se a linha já existe
+    if ! grep -Fxq "$STARSHIP_CMD" "$zshrc"; then
+        echo "" >> "$zshrc"               # adiciona uma linha em branco
+        echo "$STARSHIP_CMD" >> "$zshrc"  # adiciona o comando
+        log_success "Starship init adicionado ao ~/.zshrc"
+    else
+        log_info "Starship init já existe em ~/.zshrc"
+    fi
+
     # Install Zsh plugins
     install_zsh_plugins
 

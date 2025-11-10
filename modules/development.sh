@@ -397,18 +397,19 @@ install_docker() {
         return 0
     fi
 
+    log_info "Removing old versions of Docker on this machine...."
     # Remove old versions
     superuser_do dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine &>/dev/null || true
 
+    log_info "Addind Docker Oficial Repo on this machine...."
     # Add Docker repository
-    superuser_do dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    superuser_do dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo &>/dev/null || true
 
     # Install Docker packages
     if superuser_do dnf install -y "${docker_packages[@]}"; then
         mkdir -p /home/"$USER"/.docker
         # Add user to docker group
         if [ "$EUID" -ne 0 ]; then
-			superuser_do newgrp docker
         	superuser_do groupadd -f docker
             superuser_do gpasswd -a ${USER} docker
             superuser_do usermod -aG docker "$USER"
@@ -420,7 +421,7 @@ install_docker() {
         # Start and enable Docker
         enable_service "docker" "Docker"
         start_service "docker" "Docker"
-        docker run hello-world
+        sudo docker run --rm hello-world
         log_success "Docker Engine installed successfully"
     else
         log_failed "Failed to install Docker Engine"
