@@ -95,7 +95,6 @@ install_special_packages() {
     install_bitwarden_gui
     install_bitwarden_cli
 
-    install_onlyoffice
 }
 
 install_brave() {
@@ -284,17 +283,4 @@ install_bitwarden_cli() {
 
     # Clean temp
     rm -rf "$temp_dir"
-}
-
-install_onlyoffice() {
-    log_info "Installing Only Office..."
-
-    if superuser_do dnf install -y https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors.x86_64.rpm; then
-        log_success "Only Office installed successfully"
-    else
-        log_failed "Failed to download Only Office"
-        return 1
-    fi
-
-    
 }
