@@ -134,7 +134,8 @@ function install_dnf_fonts(){
 	fi
 
 	log_info "Installing Microsoft Fonts from URL..."
-	superuser_do dnf install --skip-broken https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm -y
+	superuser_do rpm --nodigest -i --percent https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+	#superuser_do dnf install --skip-broken https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm -y
 
     log_info "Updating font cache..."
 	fc-cache -f
