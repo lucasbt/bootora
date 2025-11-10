@@ -115,7 +115,7 @@ install_flatpak_with_retry() {
     local retry_count=0
 
     while [ $retry_count -lt $max_retries ]; do
-        if flatpak install -y flathub "$package"; then
+        if flatpak install -y --noninteractive flathub "$package"; then
             return 0
         fi
 
@@ -151,7 +151,7 @@ configure_flatpak_themes() {
     if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ]; then
         # Install GNOME themes for Flatpak
         if ! is_flatpak_installed "org.gtk.Gtk3theme.Adwaita-dark"; then
-            flatpak install -y flathub org.gtk.Gtk3theme.Adwaita-dark || true
+            flatpak install -y --noninteractive flathub org.gtk.Gtk3theme.Adwaita-dark || true
         fi
     fi
 
