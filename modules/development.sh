@@ -18,7 +18,6 @@ local docker_packages=(
     "containerd.io"
     "docker-buildx-plugin"
     "docker-compose-plugin"
-    "docker-compose"
 )
 
 local npm_packages=(
@@ -261,7 +260,7 @@ install_nodejs() {
         if npm list -g "$package"; then
             log_info "$package already installed globally"
         else
-            if npm install -g "$package"; then
+            if sudo npm install -g "$package"; then
                 log_success "Installed $package globally"
             else
                 log_warning "Failed to install $package"
@@ -756,29 +755,42 @@ install_drawio() {
         return 0
     fi
 
-	log_info "Searching for the latest release of $repo_owner/$repo_name..."
-  	json=$(curl -s "https://api.github.com/repos/${repo_owner}/${repo_name}/releases/latest")
-	rpm_url=$(echo "$json" | jq -r '.assets[] | select(.name | test("drawio-x86_64.*\\.rpm$")) | .browser_download_url' | head -n1)
+	# log_info "Searching for the latest release of $repo_owner/$repo_name..."
+  	# json=$(curl -s "https://api.github.com/repos/${repo_owner}/${repo_name}/releases/latest")
+	# rpm_url=$(echo "$json" | jq -r '.assets[] | select(.name | test("drawio-x86_64.*\\.rpm$")) | .browser_download_url' | head -n1)
 
-	if [[ -z "$rpm_url" || "$rpm_url" == "null" ]]; then
-    	log_warning "Error: RPM for architecture $arch not found in latest release."
-    	return 1
-  	fi
+	# if [[ -z "$rpm_url" || "$rpm_url" == "null" ]]; then
+    # 	log_warning "Error: RPM for architecture $arch not found in latest release."
+    # 	return 1
+  	# fi
 
-    log_info "Downloading draw.io RPM..."
-	rpm_file=$(basename "$rpm_url")
-    if curl -L -o "$rpm_file" "$rpm_url"; then
-        if superuser_do dnf install -y "$rpm_file"; then
-            log_success "draw.io installed successfully"
-            rm -f "$rpm_file"
-        else
-            log_failed "Failed to install draw.io from RPM"
-            return 1
-        fi
+    # log_info "Downloading draw.io RPM..."
+	# rpm_file=$(basename "$rpm_url")
+    # if curl -L -o "$rpm_file" "$rpm_url"; then
+    #     if superuser_do dnf install -y "$rpm_file"; then
+    #         log_success "draw.io installed successfully"
+    #         rm -f "$rpm_file"
+    #     else
+    #         log_failed "Failed to install draw.io from RPM"
+    #         return 1
+    #     fi
+    # else
+    #     log_failed "Failed to download draw.io RPM"
+    #     return 1
+    # fi
+
+
+    log_info "Downloading and installing draw.io RPM..."
+    rpm_url="https://github.com/jgraph/drawio-desktop/releases/download/v28.2.5/drawio-x86_64-28.2.5.rpm"
+    if superuser_do dnf install -y "$rpm_url"; then
+        log_success "draw.io installed successfully"
     else
-        log_failed "Failed to download draw.io RPM"
+        log_failed "Failed to install draw.io from RPM"
         return 1
     fi
+
+
+
 }
 
 install_dbeaver() {

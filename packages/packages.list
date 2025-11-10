@@ -122,8 +122,6 @@ cifs-utils
 fuse
 fuse-sshfs
 gvfs-fuse
-gpaste-ui
-gpaste
 gtk-murrine-engine
 gtk2-engines
 adw-gtk3-theme
@@ -136,7 +134,6 @@ gnome-shell-extension-caffeine
 gnome-shell-extension-dash-to-dock
 gnome-shell-extension-dash-to-panel
 gnome-shell-extension-freon
-gnome-shell-extension-gpaste
 gnome-shell-extension-just-perfection
 gnome-shell-extension-user-theme
 cabextract
