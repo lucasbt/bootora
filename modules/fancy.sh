@@ -8,9 +8,6 @@ local FONTS_DOTS_DIR="$HOME/.local/share/fonts"
 local WALLPAPERS_DIR="$HOME/Documents/resources/pictures/wallpapers"
 
 FONTS_DNF_LIST=(
-	mozilla-fira-fonts-common
-	mozilla-fira-mono-fonts
-	mozilla-fira-sans-fonts
 	mozilla-zilla-slab-fonts-common
 	mozilla-zilla-slab-highlight-fonts
 	google-noto-serif-fonts
