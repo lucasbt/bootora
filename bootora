@@ -397,5 +397,4 @@ main() {
     esac
 }
 
-# Run main function
 main "$@"

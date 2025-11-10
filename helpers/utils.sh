@@ -440,6 +440,55 @@ version_ge() {
     test "$(printf '%s\n' "$@" | sort -V | head -n 1)" = "$2"
 }
 
+# ============================================
+# Função: inibe temporariamente bloqueio de tela e suspensão (GNOME)
+# ============================================
+inhibit_blockage_gnome() {
+    GNOME_STATE_FILE="$BOOTORA_CACHE/gnome_state.conf"
+
+    # --- Se houver estado pendente, não mexe e avisa ---
+    if [ -f "$GNOME_STATE_FILE" ]; then
+        log_warning "Detectado estado GNOME pendente de restauração — não será modificado neste run."
+        return
+    fi
+
+    # --- Desativa temporariamente se GNOME estiver ativo ---
+    if pgrep -x gnome-shell >/dev/null 2>&1; then
+        log_info "Sessão GNOME detectada — desativando bloqueio de tela e suspensão temporariamente..."
+
+        OLD_IDLE_DELAY=$(gsettings get org.gnome.desktop.session idle-delay 2>/dev/null || echo "300")
+        OLD_LOCK_ENABLED=$(gsettings get org.gnome.desktop.screensaver lock-enabled 2>/dev/null || echo "true")
+
+        # Salva no cache para restauração futura
+        {
+            echo "OLD_IDLE_DELAY=$OLD_IDLE_DELAY"
+            echo "OLD_LOCK_ENABLED=$OLD_LOCK_ENABLED"
+        } > "$GNOME_STATE_FILE"
+
+        # Desativa bloqueio e suspensão temporariamente
+        gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null && \
+            log_success "Suspensão automática desativada temporariamente" || \
+            log_warning "Falha ao desativar idle-delay"
+        gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null && \
+            log_success "Bloqueio de tela desativado temporariamente" || \
+            log_warning "Falha ao desativar bloqueio de tela"
+    else
+        log_info "Sessão GNOME não detectada — execução sem alterar bloqueio de tela."
+    fi
+}
+
+# Função interna de restauração
+restaurar_gnome_config() {
+    log_info "Restaurando configurações originais de bloqueio de tela e suspensão..."
+    gsettings set org.gnome.desktop.session idle-delay "$OLD_IDLE_DELAY" 2>/dev/null && \
+        log_success "Tempo de inatividade restaurado para $OLD_IDLE_DELAY" || \
+        log_warning "Falha ao restaurar idle-delay"
+    gsettings set org.gnome.desktop.screensaver lock-enabled "$OLD_LOCK_ENABLED" 2>/dev/null && \
+        log_success "Bloqueio de tela restaurado para $OLD_LOCK_ENABLED" || \
+        log_warning "Falha ao restaurar bloqueio de tela"
+    rm -f "$GNOME_STATE_FILE" 2>/dev/null || true
+}
+
 # Initialize bootora environment
 init_bootora_env() {
     check_sudo
@@ -449,7 +498,9 @@ init_bootora_env() {
 
     # Create temp directory
     export TEMP_DIR=$(mktemp -d)
-    trap cleanup_temp_files EXIT
+    trap 'restaurar_gnome_config; cleanup_temp_files' EXIT
+
+    inhibit_blockage_gnome
 
     log_info "Bootora environment initialized"
 }
