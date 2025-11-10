@@ -58,8 +58,11 @@ log_header() {
 
     # Detecta largura do terminal ou usa 60 como padrão
     local width=60
-    #width=$(tput cols 2>/dev/null)
-    [[ -z "$width" || "$width" -lt 20 ]] && width=60
+    if command -v tput >/dev/null 2>&1; then
+        width=$(tput cols 2>/dev/null || echo 60)
+    fi
+
+    [[ "$width" -lt 20 ]] && width=60
 
     local border=$(printf '=%.0s' $(seq 1 "$width"))
 
