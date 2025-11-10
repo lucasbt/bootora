@@ -75,9 +75,9 @@ log_header() {
     local right_pad=$(printf ' %.0s' $(seq 1 $((width - 2 - padding - ${#clean_text}))) )
 
     echo
-    echo -e "${BLUE}${border}${NC}"
-    echo -e "${BLUE}|${left_pad}${clean_text}${right_pad}|${NC}"
-    echo -e "${BLUE}${border}${NC}"
+    echo -e "${PURPLE}${border}${NC}"
+    echo -e "${PURPLE}|${left_pad}${clean_text}${right_pad}|${NC}"
+    echo -e "${PURPLE}${border}${NC}"
     echo
 }
 
