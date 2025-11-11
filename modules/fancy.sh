@@ -80,10 +80,18 @@ FONTS_URLS_LIST=(
 
 ICONS_LIST=(
 	papirus-icon-theme
+	papirus-icon-theme-dark
 	flat-remix-icon-theme
 	la-capitaine-icon-theme
 	luv-icon-theme
 	pop-icon-theme
+	tela-icon-theme
+	cosmic-icon-theme
+	libreoffice-icon-theme-papirus
+	paper-icon-theme
+	tango-icon-theme
+	tango-icon-theme-extras
+	yaru-icon-theme
 )
 
 WALLS_FOLDERS=(
