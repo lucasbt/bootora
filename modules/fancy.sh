@@ -102,6 +102,10 @@ WALLS_FOLDERS=(
 	"mountain"
 	"monochrome"
 	"digital"
+	"lightbulb"
+	"solarized"
+	"spam"
+	"unsorted"
 )
 
 execute_fancy_module() {
