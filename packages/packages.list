@@ -125,6 +125,7 @@ gvfs-fuse
 gtk-murrine-engine
 gtk2-engines
 adw-gtk3-theme
+sassc
 gnome-themes-extra
 gnome-shell-extension-appindicator
 gnome-shell-extension-auto-move-windows
