@@ -557,8 +557,54 @@ check_environment() {
     fi
 }
 
+spinner_run() {
+    if [ $# -lt 2 ]; then
+        log_failed "Uso: spinner_run <mensagem> <comando>"
+        return 1
+    fi
+
+    local msg="$1"
+    shift
+    local cmd_str="$*"
+    local tmpfile
+    tmpfile=$(mktemp)
+    local exit_code
+    local delay=0.1
+    local spinner=('|' '/' '-' '\\')
+    local i=0
+    local clear_line='\r\033[K'
+    local hide_cursor='\033[?25l'
+    local show_cursor='\033[?25h'
+
+    printf "%b" "$hide_cursor"
+
+    bash -c "$cmd_str" >"$tmpfile" 2>&1 &
+    local pid=$!
+
+    while kill -0 "$pid" 2>/dev/null; do
+        printf "${clear_line}%s %s" "$msg" "${spinner[i]}"
+        sleep "$delay"
+        ((i=(i+1)%4))
+    done
+
+    wait "$pid"
+    exit_code=$?
+
+    printf "%b" "$clear_line$show_cursor"
+
+    if [ "$exit_code" -eq 0 ]; then
+        log_success "$msg concluído com sucesso!"
+    else
+        log_failed "$msg falhou!"
+        cat "$tmpfile"
+    fi
+
+    rm -f "$tmpfile"
+    return "$exit_code"
+}
+
 # Export all functions for use in other scripts
-export -f log_info log_warning log_error log_success log_failed
+export -f log_info log_warning log_error log_success log_failed spinner_run
 export -f log_header log_subheader show_progress
 export -f get_system_info get_fedora_version check_sudo superuser_do
 export -f is_package_installed is_flatpak_installed is_command_available

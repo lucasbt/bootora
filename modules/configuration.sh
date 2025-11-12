@@ -417,10 +417,7 @@ apply_system_tweaks() {
     sudo rm -f /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
     sudo rm -rf /etc/xdg/autostart/org.gnome.Software.desktop
 
-    sudo fwupdmgr refresh --force
-    sudo fwupdmgr get-devices
-    sudo fwupdmgr get-updates
-    sudo fwupdmgr update
+    spinner_run "Update firmwares..." fwupdmgr refresh --force >/dev/null fwupdmgr get-devices >/dev/null fwupdmgr get-updates >/dev/null fwupdmgr update >/dev/null
 
     # Improve swappiness
     apply_swappiness_tweak
@@ -562,7 +559,7 @@ EOF
         cat >> "$HOME/.bash_functions" << 'EOF'
 
 # Bookmark functions
-go() {
+bm() {
     local bookmark=$(grep "^$1=" ~/.bookmarks 2>/dev/null | cut -d'=' -f2)
     if [ -n "$bookmark" ]; then
         cd "$bookmark"
