@@ -417,7 +417,7 @@ apply_system_tweaks() {
     sudo rm -f /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
     sudo rm -rf /etc/xdg/autostart/org.gnome.Software.desktop
 
-    spinner_run "Update firmwares..." "fwupdmgr refresh --force >/dev/null;fwupdmgr get-devices >/dev/null;fwupdmgr get-updates >/dev/null;fwupdmgr update >/dev/null"
+    spinner_run "Update firmwares..." "fwupdmgr refresh --force;fwupdmgr get-devices;fwupdmgr get-updates;fwupdmgr update; sleep 2"
 
     # Improve swappiness
     apply_swappiness_tweak
