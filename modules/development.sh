@@ -463,7 +463,7 @@ install_kubectl() {
     log_info "Installing kubectl..."
 
     # Install kubectl if not available
-    if ! is_command_available "kubectl"; then
+    if is_command_available "kubectl"; then
         log_info "Kubectl already installed."
         return 0
     fi

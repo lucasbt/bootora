@@ -381,7 +381,7 @@ EOF
 # Configure automatic updates
 configure_automatic_updates() {
     log_info "Configuring automatic security updates..."
-    if ask_yes_no "Enable automatic security updates?" "y"; then
+    #if ask_yes_no "Enable automatic security updates?" "y"; then
         install_dnf_package "dnf-automatic" "DNF Automatic"
 
         # Configure dnf-automatic
@@ -404,7 +404,7 @@ configure_automatic_updates() {
 
             log_success "Automatic security updates enabled"
         fi
-    fi
+    #fi
 }
 
 # Apply system tweaks
@@ -417,7 +417,7 @@ apply_system_tweaks() {
     sudo rm -f /usr/lib64/firefox/browser/defaults/preferences/firefox-redhat-default-prefs.js
     sudo rm -rf /etc/xdg/autostart/org.gnome.Software.desktop
 
-    spinner_run "Update firmwares..." "fwupdmgr refresh --force;fwupdmgr get-devices;fwupdmgr get-updates;fwupdmgr update; sleep 2"
+    spinner_run "Update firmwares" "fwupdmgr refresh --force;fwupdmgr get-devices;fwupdmgr get-updates;fwupdmgr update"
 
     # Improve swappiness
     apply_swappiness_tweak
