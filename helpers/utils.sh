@@ -570,7 +570,7 @@ spinner_run() {
     tmpfile=$(mktemp)
     local exit_code
     local delay=0.1
-    local spinner=('|' '/' '-' '\\')
+    local spinner=('|' '/' '-' '\')
     local i=0
     local clear_line='\r\033[K'
     local hide_cursor='\033[?25l'
