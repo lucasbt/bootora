@@ -466,8 +466,8 @@ inhibit_blockage_gnome() {
 
         # --- Salva no cache para restauração futura ---
         {
-            echo "OLD_IDLE_DELAY=$OLD_IDLE_DELAY"
-            echo "OLD_LOCK_ENABLED=$OLD_LOCK_ENABLED"
+            echo "OLD_IDLE_DELAY='$OLD_IDLE_DELAY'"
+            echo "OLD_LOCK_ENABLED='$OLD_LOCK_ENABLED'"
             echo "OLD_SLEEP_BATTERY=$OLD_SLEEP_BATTERY"
             echo "OLD_SLEEP_AC=$OLD_SLEEP_AC"
         } > "$GNOME_STATE_FILE"
