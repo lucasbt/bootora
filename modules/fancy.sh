@@ -108,38 +108,34 @@ WALLS_FOLDERS=(
 	"unsorted"
 )
 
-function install_dnf_fonts(){
-	log_info "Installing preferred fonts from DNF"
+install_dnf_fonts() {
+    log_info "Installing preferred fonts from DNF"
 
-	if [ ! ${#FONTS_DNF_LIST[@]} -eq 0 ]; then
-	    log_info "List of fonts that will be installed: \n\n$(echo "${FONTS_DNF_LIST[@]}" | tr ' ' '\n')\n"
-	    mkdir -p "/tmp/fonts/"
-	    log_info "Installing DNF Fonts:"
+    if [ ${#FONTS_DNF_LIST[@]} -eq 0 ]; then
+        log_warning "The list of DNF fonts is empty. Moving on..."
+        return 0
+    fi
 
-   	    for FONT in "${FONTS_DNF_LIST[@]}"; do
-	    	if [[ $FONT != "" ]] && [[ $FONT != "#"* ]]; then
+    log_info "List of fonts that will be installed:\n\n$(printf '%s\n' "${FONTS_DNF_LIST[@]}")\n"
+    mkdir -p "/tmp/fonts/"
 
-				log_info "Downloading and installing font '$FONT'..."
-				superuser_do "dnf install -y --skip-broken $FONT"
-				if [ $? -ne 0 ]; then
-					log_failed "Error installing font '$FONT'."
-				else
-					log_success "Font '$FONT' was installed."
-				fi
+    log_info "Installing all DNF fonts in a single transaction..."
+    superuser_do "dnf install -y --skip-broken ${FONTS_DNF_LIST[*]}"
+    local exit_code=$?
 
-	    	fi
-	    done
-	else
-		log_warning "The list of DNF fonts is empty. Moving on..."
-	fi
+    if [ $exit_code -ne 0 ]; then
+        log_failed "Some fonts failed to install (exit code $exit_code)."
+    else
+        log_success "All fonts were installed successfully."
+    fi
 
-	log_info "Installing Microsoft Fonts from URL..."
-	superuser_do rpm --nodigest -i --percent https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
-	#superuser_do dnf install --skip-broken https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm -y
+    log_info "Installing Microsoft Fonts from URL..."
+    superuser_do "rpm --nodigest -i --percent https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm"
 
     log_info "Updating font cache..."
-	fc-cache -f
-	log_success "Preferred DNF fonts installation complete."
+    fc-cache -f
+
+    log_success "Preferred DNF fonts installation complete."
 }
 
 function install_nerd_fonts(){
@@ -258,8 +254,9 @@ function install_wallpapers() {
 
 execute_fancy_module() {
 	log_subheader "System install and config aesthetics"
-	export -f install_dnf_fonts
-	spinner_run "Installing preferred fonts from DNF. Please wait, this may take a while..." install_dnf_fonts
+	#export -f install_dnf_fonts
+	#spinner_run "Installing preferred fonts from DNF. Please wait, this may take a while..." install_dnf_fonts
+	install_dnf_fonts
 	install_nerd_fonts
 	install_urls_fonts
 	install_icons
