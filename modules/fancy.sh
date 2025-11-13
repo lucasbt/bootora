@@ -254,9 +254,9 @@ function install_wallpapers() {
 
 execute_fancy_module() {
 	log_subheader "System install and config aesthetics"
-	#export -f install_dnf_fonts
-	#spinner_run "Installing preferred fonts from DNF. Please wait, this may take a while..." install_dnf_fonts
-	install_dnf_fonts
+	export -f install_dnf_fonts
+	spinner_run "Installing preferred fonts from DNF. Please wait, this may take a while..." install_dnf_fonts
+	#install_dnf_fonts
 	install_nerd_fonts
 	install_urls_fonts
 	install_icons
