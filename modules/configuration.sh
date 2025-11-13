@@ -236,12 +236,16 @@ configure_zsh() {
 
     log_success "Zsh configured with Starship and plugins"
 
-    # Ask to set Zsh as default shell
-    if [ "$SHELL" != "$(which zsh)" ]; then
-        #if ask_yes_no "Set Zsh as your default shell?" "n"; then
-            sudo chsh -s $(which zsh) "$USERNAME"
-            log_success "Zsh set as default shell (effective after logout/login)"
-        #fi
+    current_shell="$(getent passwd "${$USER}" | cut -d: -f7)"
+    zsh_path="$(which zsh)"
+    target_user="${$USER}"
+
+    if [ "$current_shell" != "$zsh_path" ]; then
+        log_info "Setting Zsh as default shell for $target_user"
+        sudo chsh -s "$zsh_path" "$target_user"
+        log_success "Zsh set as default shell (effective after logout/login)"
+    else
+        log_info "Zsh is already the default shell for $target_user"
     fi
 }
 
