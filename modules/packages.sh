@@ -95,7 +95,55 @@ install_special_packages() {
     install_bitwarden_gui
     install_bitwarden_cli
 
+    install_readest
+
 }
+
+# Install Readest (latest RPM, x86_64 only)
+install_readest() {
+    log_info "Installing Readest..."
+
+    local repo_owner="readest"
+    local repo_name="readest"
+    local rpm_url rpm_file json
+
+    # Check if installed
+    if is_command_available "readest"; then
+        local current_version
+        current_version=$(readest --version 2>/dev/null || echo "unknown")
+        log_info "Readest already installed ($current_version)"
+        return 0
+    fi
+
+    log_info "Fetching latest release info from GitHub..."
+    json=$(curl -s "https://api.github.com/repos/${repo_owner}/${repo_name}/releases/latest")
+
+    # Extract the x86_64 RPM URL dynamically
+    rpm_url=$(echo "$json" | jq -r ".assets[] | select(.name | test(\"Readest-.*x86_64_linux\\\\.rpm\$\")) | .browser_download_url" | head -n1)
+
+    if [[ -z "$rpm_url" || "$rpm_url" == "null" ]]; then
+        log_failed "Error: Readest x86_64 RPM not found in latest release."
+        return 1
+    fi
+
+    rpm_file=$(basename "$rpm_url")
+    log_info "Downloading $rpm_file..."
+    
+    if curl -L -o "$rpm_file" "$rpm_url"; then
+        log_info "Installing $rpm_file..."
+        if superuser_do dnf install -y "$rpm_file"; then
+            log_success "Readest installed successfully"
+            rm -f "$rpm_file"
+        else
+            log_failed "Failed to install Readest from RPM"
+            return 1
+        fi
+    else
+        log_failed "Failed to download $rpm_file"
+        return 1
+    fi
+}
+
 
 install_brave() {
     if is_command_available "brave-browser"; then

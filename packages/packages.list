@@ -116,7 +116,6 @@ flatseal
 file-roller
 dconf-editor
 fontconfig
-calibre
 samba
 cifs-utils
 fuse

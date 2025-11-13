@@ -114,7 +114,6 @@ execute_fancy_module() {
 	install_nerd_fonts
 	install_urls_fonts
 	install_icons
-	install_themes
 	install_wallpapers
     log_success "Fancy aesthetics module completed successfully"
     return 0
@@ -267,36 +266,4 @@ function install_wallpapers() {
 			log_warning "Skip download of wallpapers..."
 		fi
 	fi
-}
-
-install_themes(){
-	install_graphite_theme
-}
-
-install_graphite_theme() {
-    # Diretório temporário
-    TMP_DIR="/tmp/graphite-theme"
-
-    log_info "Downloading Graphite GTK Theme..."
-    git clone https://github.com/vinceliuice/Graphite-gtk-theme.git "$TMP_DIR"
-
-    if [ $? -ne 0 ]; then
-        log_failed "Error cloning repository!"
-        return 1
-    fi
-
-    cd "$TMP_DIR" || return 1
-
-    log_info "Installing the Rimless version of the theme..."
-    chmod +x install.sh
-    ./install.sh -g -l --tweaks float colorful nord rimless
-
-    if [ $? -eq 0 ]; then
-        log_success "Graphite Rimless theme installed successfully!"
-    else
-        log_failed "Theme installation failed."
-        return 1
-    fi
-
-    rm -rf "$TMP_DIR"
 }
