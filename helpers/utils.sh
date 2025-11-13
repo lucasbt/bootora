@@ -625,7 +625,9 @@ spinner_run() {
         log_success "$msg concluído com sucesso!"
     else
         log_failed "$msg falhou!"
+        echo "" 
         cat "$tmpfile"
+        echo "" 
     fi
 
     rm -f "$tmpfile"
