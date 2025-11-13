@@ -46,6 +46,7 @@ FONTS_DNF_LIST=(
 	lato-fonts
 	material-icons-fonts
 	powerline-fonts
+	xorg-x11-font-utils
 )
 
 FONTS_NERD_LIST=(
@@ -119,7 +120,7 @@ install_dnf_fonts() {
     mkdir -p "/tmp/fonts/"
 
     log_info "Installing all DNF fonts in a single transaction..."
-    superuser_do "dnf install -y --skip-broken ${FONTS_DNF_LIST[*]}"
+    superuser_do "dnf install -y --skip-broken --skip-unavailable ${FONTS_DNF_LIST[*]}"
     local exit_code=$?
 
     if [ $exit_code -ne 0 ]; then
