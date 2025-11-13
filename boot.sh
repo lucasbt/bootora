@@ -243,7 +243,7 @@ _bootora() {
         prev="${COMP_WORDS[COMP_CWORD-1]}"
     fi
 
-    local commands="install update module list status clean self-update help version"
+    local commands="full-install update module list status clean self-update help version"
 
     case "$prev" in
         module)
@@ -268,7 +268,7 @@ EOF
 _bootora() {
   local -a commands
   commands=(
-    'install:Run full installation'
+    'full-install:Run full installation'
     'update:Update installed packages and tools'
     'module:Run specific module'
     'list:List available modules'
