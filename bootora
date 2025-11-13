@@ -154,10 +154,12 @@ execute_module() {
         echo
         log_info "Module '$module' finished successfully"
         update_state "$module" "true"
+        bootora_cleanup
         return 0
     else
         log_failed "Module '$module' failed"
         update_state "$module" "false"
+        bootora_cleanup
         return 1
     fi
 }
@@ -279,6 +281,7 @@ update_system() {
         execute_module "$module"
     done
 
+    bootora_cleanup
     log_success "Update completed"
 }
 
