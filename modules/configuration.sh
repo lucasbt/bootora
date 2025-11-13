@@ -238,7 +238,7 @@ configure_zsh() {
 
     current_shell="$(getent passwd $USER | cut -d: -f7)"
     zsh_path="$(which zsh)"
-    target_user="${$USER}"
+    target_user="$USER"
 
     if [ "$current_shell" != "$zsh_path" ]; then
         log_info "Setting Zsh as default shell for $target_user"
