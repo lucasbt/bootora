@@ -2,7 +2,7 @@
    <img align="center" width="256" height="256" src="assets/bootora.png" />
 	<h1 align="center"><b>Bootora</b></h1>
 	<p align="center">
-		Opinionated Fedora Workstation Setup
+		<b>Opinionated Fedora Workstation Setup</b>
     <br />
   </p>
 </div>
@@ -107,6 +107,7 @@ bootora --help
 | `development` | Development tools |
 | `flatpak` | Flatpak applications |
 | `configuration` | System settings and tweaks |
+| `fancy` | Some aesthetic elements |
 
 
 ## ✨ Features
