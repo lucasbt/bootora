@@ -461,38 +461,70 @@ inhibit_blockage_gnome() {
 
         OLD_IDLE_DELAY=$(gsettings get org.gnome.desktop.session idle-delay 2>/dev/null || echo "300")
         OLD_LOCK_ENABLED=$(gsettings get org.gnome.desktop.screensaver lock-enabled 2>/dev/null || echo "true")
+        OLD_SLEEP_BATTERY=$(gsettings get org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 2>/dev/null || echo "'suspend'")
+        OLD_SLEEP_AC=$(gsettings get org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 2>/dev/null || echo "'suspend'")
 
-    # Salva no cache para restauração futura
-    {
-        echo "OLD_IDLE_DELAY=\"$OLD_IDLE_DELAY\""
-        echo "OLD_LOCK_ENABLED=\"$OLD_LOCK_ENABLED\""
-    } > "$GNOME_STATE_FILE"
+        # --- Salva no cache para restauração futura ---
+        {
+            echo "OLD_IDLE_DELAY=$OLD_IDLE_DELAY"
+            echo "OLD_LOCK_ENABLED=$OLD_LOCK_ENABLED"
+            echo "OLD_SLEEP_BATTERY=$OLD_SLEEP_BATTERY"
+            echo "OLD_SLEEP_AC=$OLD_SLEEP_AC"
+        } > "$GNOME_STATE_FILE"
 
-        # Desativa bloqueio e suspensão temporariamente
+        # --- Desativa bloqueio e suspensão temporariamente ---
         gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null && \
             log_success "Automatic sleep temporarily disabled." || \
             log_warning "Failed to disable idle-delay"
+
         gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null && \
             log_success "Screen lock temporarily disabled." || \
             log_warning "Failed to disable screen lock"
+
+        gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing' 2>/dev/null && \
+            log_success "Sleep on battery temporarily disabled." || \
+            log_warning "Failed to disable sleep on battery"
+
+        gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing' 2>/dev/null && \
+            log_success "Sleep on AC power temporarily disabled." || \
+            log_warning "Failed to disable sleep on AC power"
     else
         log_info "GNOME session not detected — running without changing screen lock."
     fi
 }
 
-# Função interna de restauração
+# ============================================
+# Função: restaura configuração original do GNOME
+# ============================================
 restaurar_gnome_config() {
+    if [ ! -f "$GNOME_STATE_FILE" ]; then
+        log_warning "No GNOME state file found — nothing to restore."
+        return
+    fi
+
     log_info "Restoring original screen lock and sleep settings..."
-    source $GNOME_STATE_FILE
+    source "$GNOME_STATE_FILE"
+
     gsettings set org.gnome.desktop.session idle-delay "$OLD_IDLE_DELAY" 2>/dev/null && \
         log_success "Inactivity time restored to $OLD_IDLE_DELAY" || \
         log_warning "Failed to restore idle-delay"
+
     gsettings set org.gnome.desktop.screensaver lock-enabled "$OLD_LOCK_ENABLED" 2>/dev/null && \
         log_success "Screen lock restored to $OLD_LOCK_ENABLED" || \
         log_warning "Failed to restore screen lock."
+
+    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type "$OLD_SLEEP_BATTERY" 2>/dev/null && \
+        log_success "Battery sleep mode restored to $OLD_SLEEP_BATTERY" || \
+        log_warning "Failed to restore battery sleep type."
+
+    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type "$OLD_SLEEP_AC" 2>/dev/null && \
+        log_success "AC sleep mode restored to $OLD_SLEEP_AC" || \
+        log_warning "Failed to restore AC sleep type."
+
     rm -f "$GNOME_STATE_FILE" 2>/dev/null || true
-    log_info "Original screen lock and sleep settings restored."
+    log_info "Original GNOME screen lock and sleep settings restored."
 }
+
 
 # --- Função de cleanup segura ---
 bootora_cleanup() {
@@ -552,8 +584,8 @@ check_environment() {
     fi
 
     local fedora_version=$(get_fedora_version)
-    if [ "$fedora_version" -lt 35 ]; then
-        log_warning "This tool is tested on Fedora 35+. Your version: $fedora_version"
+    if [ "$fedora_version" -lt 43 ]; then
+        log_warning "This tool is tested on Fedora 43+. Your version: $fedora_version"
     fi
 }
 

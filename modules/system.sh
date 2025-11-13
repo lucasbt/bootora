@@ -14,9 +14,9 @@ system_update() {
         return 1
     fi
 
-    superuser_do dnf -y upgrade --refresh
-    superuser_do dnf group upgrade core -y
-    superuser_do dnf4 group install core -y
+    superuser_do dnf upgrade --best --allowerasing --refresh
+    superuser_do dnf group upgrade core -y --best --allowerasing
+    superuser_do dnf4 group install core -y --best --allowerasing
 
     # Install essential dependencies
     log_info "Installing essential dependencies..."
@@ -102,7 +102,7 @@ configure_repositories() {
 
     # Enable Terra
     if ! dnf repolist | grep -q "Terra"; then
-        if superuser_do dnf install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release; then
+        if superuser_do dnf install -y --repofrompath 'Terra,https://repos.fyralabs.com/terra$releasever' --setopt='Terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release; then
             log_success "Terra repository enabled"
         else
             log_warning "Failed to enable Terra repository"
