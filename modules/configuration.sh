@@ -236,7 +236,7 @@ configure_zsh() {
 
     log_success "Zsh configured with Starship and plugins"
 
-    current_shell="$(getent passwd "${$USER}" | cut -d: -f7)"
+    current_shell="$(getent passwd $USER | cut -d: -f7)"
     zsh_path="$(which zsh)"
     target_user="${$USER}"
 
