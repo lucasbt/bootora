@@ -108,19 +108,6 @@ WALLS_FOLDERS=(
 	"unsorted"
 )
 
-execute_fancy_module() {
-	log_subheader "System install and config aesthetics"
-	export install_dnf_fonts
-	spinner_run "Installing preferred fonts from DNF. Please wait, this may take a while..." install_dnf_fonts
-	install_nerd_fonts
-	install_urls_fonts
-	install_icons
-	install_wallpapers
-    log_success "Fancy aesthetics module completed successfully"
-    return 0
-}
-
-
 function install_dnf_fonts(){
 	log_info "Installing preferred fonts from DNF"
 
@@ -267,4 +254,16 @@ function install_wallpapers() {
 			log_warning "Skip download of wallpapers..."
 		fi
 	fi
+}
+
+execute_fancy_module() {
+	log_subheader "System install and config aesthetics"
+	export install_dnf_fonts
+	spinner_run "Installing preferred fonts from DNF. Please wait, this may take a while..." install_dnf_fonts
+	install_nerd_fonts
+	install_urls_fonts
+	install_icons
+	install_wallpapers
+    log_success "Fancy aesthetics module completed successfully"
+    return 0
 }
