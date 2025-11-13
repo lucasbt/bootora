@@ -110,7 +110,7 @@ WALLS_FOLDERS=(
 
 execute_fancy_module() {
 	log_subheader "System install and config aesthetics"
-	install_dnf_fonts
+	spinner_run "Installing preferred fonts from DNF. Please wait, this may take a while..." install_dnf_fonts
 	install_nerd_fonts
 	install_urls_fonts
 	install_icons
