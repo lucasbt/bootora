@@ -154,12 +154,10 @@ execute_module() {
         echo
         log_info "Module '$module' finished successfully"
         update_state "$module" "true"
-        bootora_cleanup
         return 0
     else
         log_failed "Module '$module' failed"
         update_state "$module" "false"
-        bootora_cleanup
         return 1
     fi
 }
@@ -362,17 +360,20 @@ main() {
         "module")
             if [ -z "${2:-}" ]; then
                 log_error "Module name required. Use 'bootora list' to see available modules."
+                bootora_cleanup
                 exit 1
             fi
 
             if [[ ! " ${!MODULES[@]} " =~ " $2 " ]]; then
                 log_error "Unknown module: $2"
+                bootora_cleanup
                 exit 1
             fi
 
             create_lock
             trap remove_lock EXIT
             execute_module "$2"
+            bootora_cleanup
             ;;
         "list")
             list_modules
