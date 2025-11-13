@@ -109,9 +109,7 @@ install_readest() {
 
     # Check if installed
     if is_command_available "readest"; then
-        local current_version
-        current_version=$(readest --version 2>/dev/null || echo "unknown")
-        log_info "Readest already installed ($current_version)"
+        log_info "Readest already installed!"
         return 0
     fi
 
