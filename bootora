@@ -346,12 +346,14 @@ main() {
     case "${1:-}" in
         "install")
             create_lock
+            inhibit_blockage_gnome
             trap remove_lock EXIT
             full_install
             bootora_cleanup
             ;;
         "update")
             create_lock
+            inhibit_blockage_gnome
             trap remove_lock EXIT
             update_system
             bootora_cleanup
@@ -359,17 +361,16 @@ main() {
         "module")
             if [ -z "${2:-}" ]; then
                 log_error "Module name required. Use 'bootora list' to see available modules."
-                bootora_cleanup
                 exit 1
             fi
 
             if [[ ! " ${!MODULES[@]} " =~ " $2 " ]]; then
                 log_error "Unknown module: $2"
-                bootora_cleanup
                 exit 1
             fi
 
             create_lock
+            inhibit_blockage_gnome
             trap remove_lock EXIT
             execute_module "$2"
             bootora_cleanup

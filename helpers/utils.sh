@@ -565,9 +565,6 @@ init_bootora_env() {
     # Interrupção (Ctrl+C, SIGTERM): cleanup e sai imediatamente
     trap 'log_warning "Execution interrupted! Exiting immediately."; bootora_cleanup; exit 1' SIGINT SIGTERM
 
-    # Inibe bloqueio de tela temporariamente
-    inhibit_blockage_gnome
-
     log_info "Bootora environment initialized"
 }
 
