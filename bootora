@@ -279,7 +279,6 @@ update_system() {
         execute_module "$module"
     done
 
-    bootora_cleanup
     log_success "Update completed"
 }
 
