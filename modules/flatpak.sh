@@ -115,7 +115,7 @@ install_flatpak_with_retry() {
     local retry_count=0
 
     while [ $retry_count -lt $max_retries ]; do
-        if flatpak install -y flathub "$package"; then
+        if flatpak install -y --noninteractive flathub "$package"; then
             return 0
         fi
 
