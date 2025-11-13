@@ -233,7 +233,7 @@ function install_wallpapers() {
     	log_info "Wallpapers collection already exists. Skipping download..."
 	else
 		mkdir -p $COLLECTION_WALLS
-        if ask_yes_no "ATTENTION! The download content may be very large. \nProceed with download?" "y"; then
+        if ask_yes_no "ATTENTION! The download content may be very large. Proceed with download?" "y"; then
 			git clone --filter=blob:none --no-checkout "$WALLS_REPO_URL" "$TEMP_DIR"
 			cd "$TEMP_DIR" || return 0
 			git sparse-checkout init --cone
