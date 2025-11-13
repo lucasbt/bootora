@@ -90,7 +90,7 @@ install_multimedia_codecs() {
         log_info "Installing additional codecs from RPM Fusion..."
 
         # Install multimedia group            
-        if sudo dnf4 group install multimedia -y --best --allowerasing --skip-broken --with-optional --exclude=PackageKit-gstreamer-plugin; then
+        if sudo dnf4 group install multimedia -y --best --allowerasing --skip-broken --with-optional; then
             log_success "Multimedia group installed"
         else
             log_warning "Failed to install Multimedia group"
@@ -103,7 +103,6 @@ install_multimedia_codecs() {
         log_info "Installing Lame plugins..."
         superuser_do dnf install -y --best --allowerasing --skip-broken lame lame-libs --exclude=lame-devel
         log_info "Update groups core and multimedia..."
-        sudo dnf update -y '@core' '@multimedia' --exclude='PackageKit-gstreamer-plugin' --allowerasing && sync
         sudo dnf group install -y sound-and-video
         sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
     else
