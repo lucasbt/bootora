@@ -215,7 +215,7 @@ configure_zsh() {
     # Install Starship prompt
     if ! command -v starship &>/dev/null; then
         log_info "Installing Starship prompt..."
-        curl -sS https://starship.rs/install.sh | sh
+        curl -sS https://starship.rs/install.sh | sh -s -- -y -b ~/.local/bin
         log_success "Starship installed"
     else
         log_info "Starship already installed"
@@ -238,10 +238,10 @@ configure_zsh() {
 
     # Ask to set Zsh as default shell
     if [ "$SHELL" != "$(which zsh)" ]; then
-        if ask_yes_no "Set Zsh as your default shell?" "n"; then
+        #if ask_yes_no "Set Zsh as your default shell?" "n"; then
             sudo chsh -s $(which zsh) "$USERNAME"
             log_success "Zsh set as default shell (effective after logout/login)"
-        fi
+        #fi
     fi
 }
 

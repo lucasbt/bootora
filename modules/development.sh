@@ -215,7 +215,7 @@ install_nvm() {
     local nvm_install_url="https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh"
 
     # Install NVM if not already installed
-    if is_command_available "nvm"; then
+    if [ -s "$HOME/.nvm/nvm.sh" ]; then
         log_info "NVM already installed"
     else
         curl -o- "$nvm_install_url" | bash
