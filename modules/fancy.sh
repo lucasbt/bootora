@@ -32,7 +32,6 @@ FONTS_DNF_LIST=(
 	google-roboto-slab-fonts
 	rsms-inter-fonts
 	adobe-source-code-pro-fonts
-	msttcore-fonts-installer
 	bitstream-vera-sans-fonts
 	bitstream-vera-sans-mono-fonts
 	bitstream-vera-serif-fonts
