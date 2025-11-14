@@ -7,16 +7,16 @@
 # 1. Atualização completa do sistema
 system_update() {
     log_info "Updating system packages..."
-    if superuser_do dnf update -y; then
+    if superuser_do dnf update -y --skip-unavailable --best; then
         log_success "System packages updated"
     else
         log_error "Failed to update system packages"
         return 1
     fi
 
-    superuser_do dnf upgrade --best --allowerasing --refresh
-    superuser_do dnf group upgrade core -y --best --allowerasing
-    superuser_do dnf4 group install core -y --best --allowerasing
+    superuser_do dnf upgrade --best --allowerasing --refresh --skip-unavailable
+    superuser_do dnf group upgrade core -y --best --allowerasing --skip-unavailable
+    superuser_do dnf4 group install core -y --best --allowerasing --skip-unavailable
 
     # Install essential dependencies
     log_info "Installing essential dependencies..."
@@ -102,7 +102,11 @@ configure_repositories() {
 
     # Enable Terra
     if ! dnf repolist | grep -q "Terra"; then
-        if superuser_do dnf install -y --repofrompath 'Terra,https://repos.fyralabs.com/terra$releasever' --setopt='Terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release; then
+        RELEASEVER=$(rpm -E %fedora)
+        if superuser_do dnf install -y \
+            --repofrompath "Terra,https://repos.fyralabs.com/terra${RELEASEVER}" \
+            --setopt="Terra.gpgkey=https://repos.fyralabs.com/terra${RELEASEVER}/key.asc" \
+            terra-release; then
             log_success "Terra repository enabled"
         else
             log_warning "Failed to enable Terra repository"
@@ -111,6 +115,7 @@ configure_repositories() {
     else
         log_info "Terra already enabled"
     fi
+
 
     
     return 0
