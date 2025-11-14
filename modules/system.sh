@@ -16,7 +16,7 @@ system_update() {
 
     superuser_do dnf upgrade --best --allowerasing --refresh --skip-unavailable
     superuser_do dnf group upgrade core -y --best --allowerasing --skip-unavailable
-    superuser_do dnf4 group install core -y --best --allowerasing --skip-unavailable
+    superuser_do dnf4 group install core -y --best --allowerasing
 
     # Install essential dependencies
     log_info "Installing essential dependencies..."
